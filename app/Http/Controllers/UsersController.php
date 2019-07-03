@@ -154,15 +154,5 @@ class UsersController extends Controller
         $user = $this->repository->getListUser($request->vote_id);
         return response()->json($user);
     }
-    // public function redirectGoogle()
-    // {
-    //     return Socialite::driver('google')->redirect();
-    // }
-    // public function loginGoogle()
-    // {
-    //     //$provider = Social::PROVIDER_GOOGLE;
-    //     $user = Socialite::driver('google')->user();
-    //     dd($user);
-    // }
 
 }
