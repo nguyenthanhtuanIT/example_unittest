@@ -50,7 +50,6 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
     }
     public function create(array $attributes)
     {
-        //$diagram = '';
         $validate = $this->model()::where([
             'row_of_seats' => $attributes['row_of_seats'],
             'room_id' => $attributes['room_id'],
@@ -61,7 +60,6 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
             $diagram = parent::create($attributes);
             return response()->json([$diagram]);
         }
-
     }
     public function getDiagramChairByVote($vote_id)
     {
@@ -86,7 +84,6 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
     public function delAll($room_id)
     {
         $data = Diagram::where('room_id', $room_id)->delete();
-        //$data->delete();
         return response()->json(null, 204);
     }
 }

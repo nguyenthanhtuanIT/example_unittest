@@ -110,7 +110,6 @@ class ChooseChairsController extends Controller
     public function ticketOfUser(Request $request)
     {
         $ticket = $this->repository->ticketUser($request->all());
-        //dd($seat);
         return response()->json($ticket);
     }
     public function checkUserChoosed(Request $request)

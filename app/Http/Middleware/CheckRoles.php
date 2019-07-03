@@ -22,6 +22,5 @@ class CheckRoles
         } else {
             return response()->json('You do not have admin right', 401);
         }
-
     }
 }

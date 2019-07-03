@@ -54,7 +54,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
             foreach ($validate as $v) {
                 $chairs = $this->model()::whereNotIn('id', [$v->id])->where('vote_id', $attributes['vote_id'])->get();
             }
-
             $seat = explode(',', $attributes['seats']);
             foreach ($chairs as $val) {
                 $chair = explode(',', $val->seats);
@@ -88,7 +87,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         }
         $result = parent::create($attributes);
         return $result;
-
     }
     public function ticketUser(array $attributes)
     {
@@ -213,7 +211,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                         }
                     }
                 }
-                //dd($str);
                 $seats = $r;
                 $result = $this->shuffle_seats($seats, $viewers, $vote->id);
                 return $result;
@@ -240,10 +237,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         $original_seats = $original_viewers = [];
         foreach ($seats as $key => $seats_group) {
             if (!is_array($seats_group)) {
-                // return [
-                //     'status' => 'failed',
-                //     'data' => 'The data is invalid (seats)',
-                // ];
                 return response()->json('The data is invalid (seats)', Response::HTTP_BAD_REQUEST);
             } elseif (!empty($seats_group)) {
                 $original_seats = array_merge($original_seats, $seats_group);
@@ -253,10 +246,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         }
         foreach ($viewers as $key => $viewers_group) {
             if (!is_array($viewers_group)) {
-                // return [
-                //     'status' => 'failed',
-                //     'data' => 'The data is invalid (viewers)',
-                // ];
                 return response()->json('The data is invalid (viewers)', Response::HTTP_BAD_REQUEST);
             } elseif (!empty($viewers_group)) {
                 $original_viewers = array_merge($original_viewers, $viewers_group);
@@ -266,14 +255,8 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         }
         // number of viewers must smaller than number of seats
         if (count($original_viewers) > count($original_seats)) {
-            // return [
-            //     'status' => 'failed',
-            //     'data' => 'Not enoght seats',
-            // ];
-
             return response()->json('row_of_seats exited', Response::HTTP_BAD_REQUEST);
         }
-
         // prepare data: sort viewers and shuffle seats...
         shuffle($viewers);
         usort($viewers, function ($a, $b) {
@@ -348,7 +331,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                 }
             }
         }
-
         return $positions;
     }
 }

@@ -65,7 +65,6 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
             $img = Films::find($id);
             $imgold = $img->img;
             $nameimg = explode('/', $imgold);
-            // dd($nameimg[5]);
             Storage::delete('/photos/' . $nameimg[5]);
         }
         $film = parent::update($attributes, $id);
@@ -91,7 +90,6 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
     {
         $vote = Vote::where('status_vote', 'voting')->first();
         if (!empty($vote)) {
-            //$list = $vote->list_films;
             $str = implode(',', $vote->list_films);
             $arr = explode(',', $str);
             for ($i = 0; $i < count($arr); $i++) {

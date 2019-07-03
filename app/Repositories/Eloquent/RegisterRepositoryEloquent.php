@@ -132,7 +132,6 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
         $agree = false;
         $data = Register::where(['user_id' => $attributes['user_id'], 'vote_id' => $attributes['vote_id']])->get();
         $data1 = Register::where('vote_id', $attributes['vote_id'])->where('ticket_number', '>', 1)->get();
-        //dd($data1->count());
         if (count($data) != 0) {
             foreach ($data as $value) {
                 $check = true;
@@ -147,7 +146,6 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
                         $guest = true;
                         $id = $value->user_id;
                         $user = User::find($id);
-                        //
                         if ($guest == true) {
                             if (!empty($value->agree)) {
                                 $agr = explode(',', $value->agree);
@@ -175,7 +173,6 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
             'vote_id' => $attributes['vote_id'],
             'user_id' => $attributes['user_id']])->first();
         $user = User::find($attributes['user_id']);
-
         if (!empty($data->best_friend)) {
             $arr = explode(',', $data->best_friend);
             for ($i = 0; $i < count($arr); $i++) {
@@ -185,7 +182,6 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
                 }
             }
         }
-
         $del = $this->delete($data->id);
         return $del;
     }
@@ -194,7 +190,6 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
         $vote_id = $attributes['vote_id'];
         $user_id = $attributes['user_id'];
         $guest_id = $attributes['guest_id'];
-
         $data = Register::where(['vote_id' => $vote_id,
             'user_id' => $user_id])->first();
         $arr = explode(',', $data->best_friend);
@@ -219,7 +214,6 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
     }
     public function agree(array $attributes)
     {
-
         $data = Register::where(['user_id' => $attributes['user_id'],
             'vote_id' => $attributes['vote_id']])->first();
         $arr = array();
@@ -228,7 +222,6 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
         }
         $arr[] = $attributes['guest_id'];
         $agree = implode(',', $arr);
-        //dd('ok');
         $update = Register::where(['user_id' => $attributes['user_id'],
             'vote_id' => $attributes['vote_id']])->update(['agree' => $agree]);
         if ($update == 1) {
