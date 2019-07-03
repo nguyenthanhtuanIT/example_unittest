@@ -44,11 +44,9 @@ class ChooseChairsController extends Controller
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
-
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
 
         $chooseChairs = $this->repository->paginate($limit, $columns = ['*']);
-
         return response()->json($chooseChairs);
     }
 
@@ -62,8 +60,7 @@ class ChooseChairsController extends Controller
     public function store(Request $request)
     {
         $chooseChair = $this->repository->skipPresenter()->create($request->all());
-
-        return response()->json($chooseChair, 201);
+        return response()->json($chooseChair, Response::HTTP_CREATED);
     }
 
     /**
@@ -76,7 +73,6 @@ class ChooseChairsController extends Controller
     public function show($id)
     {
         $chooseChair = $this->repository->find($id);
-
         return response()->json($chooseChair);
     }
 
@@ -91,7 +87,7 @@ class ChooseChairsController extends Controller
     public function update(Request $request, $id)
     {
         $chooseChair = $this->repository->skipPresenter()->update($request->all(), $id);
-        return response()->json($chooseChair, 200);
+        return response()->json($chooseChair, Response::HTTP_OK);
     }
 
     /**
@@ -105,31 +101,36 @@ class ChooseChairsController extends Controller
     {
         $this->repository->delete($id);
 
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
+
     public function ticketOfUser(Request $request)
     {
         $ticket = $this->repository->ticketUser($request->all());
         return response()->json($ticket);
     }
+
     public function checkUserChoosed(Request $request)
     {
         $check = $this->repository->checkChoosed($request->all());
         return response()->json($check);
     }
+
     public function reChooses(Request $request)
     {
         $re = $this->repository->reChoose($request->all());
-        return response()->json($re, 201);
+        return response()->json($re, Response::HTTP_CREATED);
     }
+
     public function randChairs(Request $request)
     {
         $ac = $this->repository->randChair($request->all());
         return $ac;
     }
+
     public function deleteAll($vote_id)
     {
         $del = $this->repository->delAll($vote_id);
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }

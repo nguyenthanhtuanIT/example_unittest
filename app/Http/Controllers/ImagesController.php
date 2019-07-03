@@ -58,6 +58,5 @@ class ImagesController extends Controller
         Storage::delete('thumbnails/' . $item->filename);
 
         return response()->json(null, Response::HTTP_NO_CONTENT);
-
     }
 }

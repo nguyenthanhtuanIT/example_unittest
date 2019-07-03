@@ -62,6 +62,7 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
     {
         $this->pushCriteria(app(RequestCriteria::class));
     }
+
     public function inforAll()
     {
         $arr = array();
@@ -85,8 +86,8 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
             }
         }
         return $arr;
-
     }
+
     public function inforByVote($vote_id)
     {
         $vote = Vote::find($vote_id);
@@ -105,8 +106,8 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
         } else {
             return response()->json(['status' => 'film selected not data']);
         }
-
     }
+
     public function amountVoteOfFilm($vote_id)
     {
         $infor = array();
@@ -130,6 +131,7 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
             return $res = array('status' => 'not data');
         }
     }
+
     public function delAll($vote_id)
     {
         $del = Statistical::where('vote_id', $vote_id)->delete();

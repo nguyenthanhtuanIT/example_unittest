@@ -56,6 +56,7 @@ class UsersController extends Controller
         $user = $this->repository->find(auth()->user()->id);
         return response()->json($user);
     }
+
     public function changePass(ChangePasswordRequest $request)
     {
         $request_data = $request->all();
@@ -148,10 +149,10 @@ class UsersController extends Controller
 
         return $this->presenterPostJson($user);
     }
+
     public function listUsers(Request $request)
     {
         $user = $this->repository->getListUser($request->vote_id);
         return response()->json($user);
     }
-
 }

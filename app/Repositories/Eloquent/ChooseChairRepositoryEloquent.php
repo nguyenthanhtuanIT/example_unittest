@@ -47,6 +47,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     {
         $this->pushCriteria(app(RequestCriteria::class));
     }
+
     public function create(array $attributes)
     {
         $validate = $this->model()::where(['user_id' => $attributes['user_id'], 'vote_id' => $attributes['vote_id']])->get();
@@ -88,12 +89,14 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         $result = parent::create($attributes);
         return $result;
     }
+
     public function ticketUser(array $attributes)
     {
         $ticket = Register::where('user_id', 1)
             ->where('vote_id', $attributes['vote_id'])->get(['ticket_number']);
         return response()->json($ticket[0]);
     }
+
     public function checkChoosed(array $attributes)
     {
         $check = false;
@@ -127,6 +130,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         }
         return array('check' => $check);
     }
+
     public function reChoose(array $attributes)
     {
         $find = $this->model()::where(['user_id' => $attributes['user_id'],
@@ -136,6 +140,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         $res = parent::create($attributes);
         return $res;
     }
+
     public function randChair(array $attributes)
     {
         $vote = Vote::find($attributes['vote_id']);
@@ -217,11 +222,13 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
             }
         }
     }
+
     public function delAll($vote_id)
     {
         $del = ChooseChair::where('vote_id', $vote_id)->delete();
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
+
     public function shuffle_seats($seats = [], $viewers = [], $vote_id)
     {
         $seats = array_values($seats);
@@ -272,7 +279,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         }
         // set positions to viewers
         $positions = $this->array_2_slots($viewers, $seats_count);
-
         // set viewer to seat randomly
         $viewer_to_seat = [];
         foreach ($seats as $group_key => $seat_group) {
@@ -289,7 +295,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         foreach ($original_seats as $key => $seat) {
             $results[$seat] = $viewer_to_seat[$seat] ?? '';
         }
-
         return [
             'vote_id' => $vote_id,
             'status' => 'success',
