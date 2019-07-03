@@ -6,6 +6,7 @@ use App\Http\Requests\CinemaCreateRequest;
 use App\Http\Requests\CinemaUpdateRequest;
 use App\Repositories\Contracts\CinemaRepository;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class CinemasController.
@@ -59,7 +60,7 @@ class CinemasController extends Controller
     public function store(CinemaCreateRequest $request)
     {
         $cinema = $this->repository->skipPresenter()->create($request->all());
-        return response()->json($cinema->presenter(), 201);
+        return response()->json($cinema->presenter(), Response::HTTP_CREATED);
     }
 
     /**
@@ -86,7 +87,7 @@ class CinemasController extends Controller
     public function update(CinemaUpdateRequest $request, $id)
     {
         $cinema = $this->repository->skipPresenter()->update($request->all(), $id);
-        return response()->json($cinema->presenter(), 200);
+        return response()->json($cinema->presenter(), Response::HTTP_OK);
     }
 
     /**
@@ -99,6 +100,6 @@ class CinemasController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }

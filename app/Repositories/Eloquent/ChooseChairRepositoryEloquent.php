@@ -220,7 +220,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     public function delAll($vote_id)
     {
         $del = ChooseChair::where('vote_id', $vote_id)->delete();
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
     public function shuffle_seats($seats = [], $viewers = [], $vote_id)
     {

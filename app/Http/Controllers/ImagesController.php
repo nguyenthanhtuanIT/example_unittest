@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ImageCreateRequest;
 use App\Repositories\Contracts\ImageRepository;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class ImagesController.
@@ -56,7 +57,7 @@ class ImagesController extends Controller
         Storage::delete($item->pathname);
         Storage::delete('thumbnails/' . $item->filename);
 
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
 
     }
 }

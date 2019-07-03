@@ -64,7 +64,7 @@ class UsersController extends Controller
             $user->password = Hash::make($request_data['password']);
             $user->save();
 
-            return response()->json(null, 204);
+            return response()->json(null, Response::HTTP_NO_CONTENT);
         } else {
             $data = [
                 "message" => "The given data was invalid.",
@@ -74,8 +74,7 @@ class UsersController extends Controller
                     ],
                 ],
             ];
-
-            return response()->json($data, 422);
+            return response()->json($data, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
 
@@ -118,7 +117,7 @@ class UsersController extends Controller
     {
         $user = $this->repository->update($request->all(), $id);
 
-        return response()->json($user, 201);
+        return response()->json($user, Response::HTTP_CREATED);
 
     }
 
@@ -133,7 +132,7 @@ class UsersController extends Controller
     {
         $this->repository->delete($id);
 
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
     /**

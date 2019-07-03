@@ -6,6 +6,7 @@ use App\Http\Requests\FilmsCreateRequest;
 use App\Http\Requests\FilmsUpdateRequest;
 use App\Repositories\Contracts\FilmsRepository;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class FilmsController.
@@ -62,7 +63,7 @@ class FilmsController extends Controller
     {
         $film = $this->repository->create($request->all());
 
-        return response()->json($film, 201);
+        return response()->json($film, Response::HTTP_CREATED);
     }
 
     /**
@@ -90,7 +91,7 @@ class FilmsController extends Controller
     public function update(Request $request, $id)
     {
         $film = $this->repository->update($request->all(), $id);
-        return response()->json($film, 200);
+        return response()->json($film, Response::HTTP_OK);
     }
 
     /**
@@ -103,7 +104,7 @@ class FilmsController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
     public function listFilmToVote()
     {

@@ -8,6 +8,7 @@ use App\Models\Statistical;
 use App\Models\Vote;
 use App\Presenters\StatisticalPresenter;
 use App\Repositories\Contracts\StatisticalRepository;
+use Illuminate\Http\Response;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
 
@@ -132,6 +133,6 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
     public function delAll($vote_id)
     {
         $del = Statistical::where('vote_id', $vote_id)->delete();
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }
