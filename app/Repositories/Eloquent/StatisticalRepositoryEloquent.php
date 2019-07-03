@@ -112,7 +112,6 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
         $vote = Vote::find($vote_id);
         if ($vote) {
             $data = Statistical::where('vote_id', $vote_id)->get();
-            //dd($$v->films_id);
             $film = Films::all();
             foreach ($data as $v) {
                 foreach ($film as $val) {

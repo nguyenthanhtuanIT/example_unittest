@@ -1,5 +1,4 @@
 <?php
-
 Route::group(['prefix' => 'v1'], function () {
     Route::post('auth/google', 'Auth\AuthGoogleController@login');
     Route::post('register', 'UsersController@register');
@@ -27,7 +26,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:api']], function () {
     // //check voted
     Route::post('check_voted', 'VoteDetailsController@checkVoted');
     Route::resource('registers', 'RegistersController');
-    // //check register
+    //check register
     Route::post('check_register', 'RegistersController@checkRegistered');
     Route::post('un_register', 'RegistersController@unRegister');
     Route::post('guest_refuse', 'RegistersController@guestRefuses');

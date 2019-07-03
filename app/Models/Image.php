@@ -15,5 +15,4 @@ class Image extends BaseModel
      * @var array
      */
     protected $fillable = ['filename', 'object_id', 'object_type', 'name', 'pathname'];
-
 }

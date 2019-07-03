@@ -82,7 +82,7 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
             $img = Vote::find($id);
             $imgold = $img->background;
             $nameimg = explode('/', $imgold);
-            Storage::delete('/photos/' . $nameimg[5]);
+            Storage::delete('/photos/' . $nameimg[4]);
         }
         $vote = parent::update($attributes, $id);
         return $vote;

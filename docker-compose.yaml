@@ -14,8 +14,6 @@ services:
       - PHP_MEM_LIMIT=1024M
   db:
     image: mysql:5.7
-     ports:
-      - 9029:3305
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: db

@@ -66,7 +66,6 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
         $user_id = $attributes['user_id'];
         $vote_id = $attributes['vote_id'];
         $data = $this->model()::where(['user_id' => $user_id, 'vote_id' => $vote_id])->get();
-        //dd(count($data));
         if (count($data) != 0) {
             foreach ($data as $value) {
                 $arr[] = $value->film_id;

@@ -103,14 +103,12 @@ class FilmsController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-
         return response()->json(null, 204);
     }
     public function listFilmToVote()
     {
         $film = $this->repository->getlistFilmToVote();
         return response()->json($film);
-        //return response()->json($film);
     }
     public function getFilmToRegister(Request $request)
     {

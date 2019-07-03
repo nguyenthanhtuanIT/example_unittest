@@ -87,7 +87,6 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
     {
         $arr_r = array();
         $arr_r1 = array();
-        //$arr_r2 = array();
         $r = Register::where('vote_id', $vote_id)->get();
         foreach ($r as $val) {
             array_push($arr_r, $val->user_id);
