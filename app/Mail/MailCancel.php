@@ -2,8 +2,8 @@
 
 namespace App\Mail;
 
+use App\Models\User;
 use App\Models\Vote;
-use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -31,7 +31,7 @@ class MailCancel extends Mailable
      */
     public function build()
     {
-        $vote = Vote::where('status_vote', 'registing')->first();
+        $vote = Vote::where('status_vote', Vote::REGISTING)->first();
         return $this->view('emails.mail_cancel')->with(['user' => $this->user, 'vote' => $vote]);
     }
 }

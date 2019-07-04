@@ -5,23 +5,41 @@ use App\Models\Vote;
 
 class VoteService
 {
-    public static function addTicket($vote_id, $number)
+    /**
+     * Add ticket when vote
+     * @param int $voteId
+     * @param int $number
+     */
+    public static function addTicket($voteId, $number)
     {
-        $v = Vote::find($vote_id);
-        $v->total_ticket += $number;
-        $v->save();
+        $vote = Vote::find($voteId);
+        $vote->total_ticket += $number;
+        $vote->save();
     }
-    public static function updateTicket($vote_id, $number_old, $number_new)
+
+    /**
+     * Update ticket when vote
+     * @param int $voteId
+     * @param int $numberOld
+     * @param int $numberNew
+     */
+    public static function updateTicket($voteId, $numberOld, $numberNew)
     {
-        $v = Vote::find($vote_id);
-        $v->total_ticket -= $number_old;
-        $v->total_ticket += $number_new;
-        $v->save();
+        $vote = Vote::find($voteId);
+        $vote->total_ticket -= $numberOld;
+        $vote->total_ticket += $numberNew;
+        $vote->save();
     }
-    public static function deleteTicket($vote_id, $number)
+
+    /**
+     * Update ticket when vote
+     * @param int $voteId
+     * @param int $number
+     */
+    public static function deleteTicket($voteId, $number)
     {
-        $v = Vote::find($vote_id);
-        $v->total_ticket -= $number;
-        $v->save();
+        $vote = Vote::find($voteId);
+        $vote->total_ticket -= $number;
+        $vote->save();
     }
 }

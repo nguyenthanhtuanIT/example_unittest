@@ -39,12 +39,14 @@ class DiagramController extends Controller
     {
         $limit = request()->get('limit', null);
         $includes = request()->get('include', '');
+
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
         $diagrams = $this->repository->custom();
-        return $diagrams;
+
+        return $this->success($diagrams, trans('messages.diagrams.getListSuccess'), ['isContainByDataString' => true]);
     }
 
     /**
@@ -56,8 +58,13 @@ class DiagramController extends Controller
      */
     public function store(DiagramCreateRequest $request)
     {
-        $diagram = $this->repository->skipPresenter()->create($request->all());
-        return $diagram;
+        $diagram = $this->repository->create($request->all());
+
+        if (is_null($diagram)) {
+            return $this->error(trans('messages.errors.errorCreateDiagram'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->success($diagram, trans('messages.diagrams.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -70,7 +77,7 @@ class DiagramController extends Controller
     public function show($id)
     {
         $diagram = $this->repository->find($id);
-        return response()->json($diagram);
+        return $this->success($diagram, trans('messages.diagrams.showSuccess'));
     }
 
     /**
@@ -83,8 +90,8 @@ class DiagramController extends Controller
      */
     public function update(DiagramUpdateRequest $request, $id)
     {
-        $diagram = $this->repository->skipPresenter()->update($request->all(), $id);
-        return response()->json([$diagram]);
+        $diagram = $this->repository->update($request->all(), $id);
+        return $this->success($diagram, trans('messages.diagrams.updateSuccess'));
     }
 
     /**
@@ -97,7 +104,7 @@ class DiagramController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.diagrams.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -108,7 +115,12 @@ class DiagramController extends Controller
     public function diagramChairByVote(Request $request)
     {
         $result = $this->repository->getDiagramChairByVote($request->vote_id);
-        return response()->json($result);
+
+        if (is_null($result)) {
+            return $this->success($result, trans('messages.diagrams.dataEmpty'), ['isContainByDataString' => true]);
+        }
+
+        return $this->success($result, trans('messages.diagrams.success'), ['isContainByDataString' => true]);
     }
 
     /**
@@ -118,8 +130,13 @@ class DiagramController extends Controller
      */
     public function searchByRoom(Request $request)
     {
-        $result = $this->repository->searchByRoomId($request->room_id);
-        return $this->repository->parserResult($result);
+        $search = $this->repository->searchByRoomId($request->room_id);
+
+        if (is_null($search)) {
+            return $this->success($result, trans('messages.diagrams.dataEmpty'), ['isContainByDataString' => true]);
+        }
+
+        return $this->success($search, trans('messages.diagrams.success'), ['isContainByDataString' => true]);
     }
 
     /**
@@ -127,9 +144,9 @@ class DiagramController extends Controller
      * @param  int $room_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteAll($room_id)
+    public function deleteAll($roomId)
     {
-        $result = $this->repository->delAll($room_id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        $this->repository->delAll($roomId);
+        return $this->success([], trans('messages.diagrams.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 }

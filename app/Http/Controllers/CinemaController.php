@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CinemaCreateRequest;
 use App\Http\Requests\CinemaUpdateRequest;
 use App\Repositories\Contracts\CinemaRepository;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -39,12 +38,14 @@ class CinemaController extends Controller
     {
         $limit = request()->get('limit', null);
         $includes = request()->get('include', '');
+
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
         $cinemas = $this->repository->paginate($limit, $columns = ['*']);
-        return response()->json($cinemas);
+
+        return $this->success($cinemas, trans('messages.cinemas.getListSuccess'));
     }
 
     /**
@@ -56,8 +57,8 @@ class CinemaController extends Controller
      */
     public function store(CinemaCreateRequest $request)
     {
-        $cinema = $this->repository->skipPresenter()->create($request->all());
-        return response()->json($cinema->presenter(), Response::HTTP_CREATED);
+        $cinema = $this->repository->create($request->all());
+        return $this->success($cinema, trans('messages.cinemas.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -70,7 +71,7 @@ class CinemaController extends Controller
     public function show($id)
     {
         $cinema = $this->repository->find($id);
-        return response()->json($cinema);
+        return $this->success($cinema, trans('messages.cinemas.showSuccess'));
     }
 
     /**
@@ -83,8 +84,8 @@ class CinemaController extends Controller
      */
     public function update(CinemaUpdateRequest $request, $id)
     {
-        $cinema = $this->repository->skipPresenter()->update($request->all(), $id);
-        return response()->json($cinema->presenter(), Response::HTTP_OK);
+        $cinema = $this->repository->update($request->all(), $id);
+        return $this->success($cinema, trans('messages.cinemas.updateSuccess'));
     }
 
     /**
@@ -97,6 +98,6 @@ class CinemaController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.cinemas.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 }
