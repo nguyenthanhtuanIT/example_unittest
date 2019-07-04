@@ -39,12 +39,14 @@ class ChooseChairController extends Controller
     {
         $limit = request()->get('limit', null);
         $includes = request()->get('include', '');
+
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
         $chooseChairs = $this->repository->paginate($limit, $columns = ['*']);
-        return response()->json($chooseChairs);
+
+        return $this->success($chooseChairs, trans('messages.chooseChairs.getListSuccess'));
     }
 
     /**
@@ -56,8 +58,13 @@ class ChooseChairController extends Controller
      */
     public function store(Request $request)
     {
-        $chooseChair = $this->repository->skipPresenter()->create($request->all());
-        return response()->json($chooseChair, Response::HTTP_CREATED);
+        $chooseChair = $this->repository->create($request->all());
+
+        if (is_null($chooseChair)) {
+            return $this->error(trans('messages.errors.errorChooseChairs'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->success($chooseChair, trans('messages.chooseChairs.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -70,7 +77,7 @@ class ChooseChairController extends Controller
     public function show($id)
     {
         $chooseChair = $this->repository->find($id);
-        return response()->json($chooseChair);
+        return $this->success($chooseChair, trans('messages.chooseChairs.showSuccess'));
     }
 
     /**
@@ -83,8 +90,8 @@ class ChooseChairController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $chooseChair = $this->repository->skipPresenter()->update($request->all(), $id);
-        return response()->json($chooseChair, Response::HTTP_OK);
+        $chooseChair = $this->repository->update($request->all(), $id);
+        return $this->success($chooseChair, trans('messages.chooseChairs.updateSuccess'));
     }
 
     /**
@@ -97,8 +104,7 @@ class ChooseChairController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.chooseChairs.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -109,7 +115,7 @@ class ChooseChairController extends Controller
     public function ticketOfUser(Request $request)
     {
         $ticket = $this->repository->ticketUser($request->all());
-        return response()->json($ticket);
+        return $this->success($ticket, trans('messages.chooseChairs.success'));
     }
 
     /**
@@ -120,7 +126,7 @@ class ChooseChairController extends Controller
     public function checkUserChoosed(Request $request)
     {
         $check = $this->repository->checkChoosed($request->all());
-        return response()->json($check);
+        return $this->success($check, trans('messages.chooseChairs.success'));
     }
 
     /**
@@ -130,8 +136,8 @@ class ChooseChairController extends Controller
      */
     public function reChooses(Request $request)
     {
-        $re = $this->repository->reChoose($request->all());
-        return response()->json($re, Response::HTTP_CREATED);
+        $reChoose = $this->repository->reChoose($request->all());
+        return $this->success($reChoose, trans('messages.chooseChairs.rechooseSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -141,8 +147,17 @@ class ChooseChairController extends Controller
      */
     public function randChairs(Request $request)
     {
-        $ac = $this->repository->randChair($request->all());
-        return $ac;
+        $random = $this->repository->randChair($request->all());
+
+        if (is_null($random['data'])) {
+            return $this->error(trans('messages.errors.errorChooseChairsInvalid'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+
+        if (empty($random['data'])) {
+            return $this->error(trans('messages.errors.errorChooseChairsEmpty'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->success($random, trans('messages.chooseChairs.success'));
     }
 
     /**
@@ -150,9 +165,9 @@ class ChooseChairController extends Controller
      * @param  int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteAll($vote_id)
+    public function deleteAll($voteId)
     {
-        $del = $this->repository->delAll($vote_id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        $this->repository->delAll($voteId);
+        return $this->success([], trans('messages.chooseChairs.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 }

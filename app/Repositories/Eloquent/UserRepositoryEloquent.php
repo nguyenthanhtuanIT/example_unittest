@@ -59,6 +59,12 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
         return $user;
     }
 
+    /**
+     * Custom update
+     * @param  array  $attributes
+     * @param  int $id
+     * @return  \Illuminate\Http\Response
+     */
     public function update(array $attributes, $id)
     {
         if (!empty($attributes['password'])) {
@@ -81,32 +87,40 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
                 'object_type' => User::IMAGE_TYPE,
             ]);
         }
+
         return $this->find($id);
     }
-    public function getListUser($vote_id)
+
+    /**
+     * Get list user to invite
+     * @param  int$voteId [description]
+     * @return  \Illuminate\Http\Response
+     */
+    public function getListUser($voteId)
     {
-        $arr_r = array();
-        $arr_r1 = array();
-        $r = Register::where('vote_id', $vote_id)->get();
-        foreach ($r as $val) {
-            array_push($arr_r, $val->user_id);
+        $array = [];
+        $arrayRegister = [];
+        $registers = Register::where('vote_id', $voteId)->get();
+        foreach ($registers as $value) {
+            array_push($array, $value->user_id);
         }
-        $r1 = Register::where('vote_id', $vote_id)->where('ticket_number', '>', 1)->get();
-        foreach ($r1 as $val) {
-            $us = explode(',', $val->best_friend);
-            for ($i = 0; $i < count($us); $i++) {
-                if (is_numeric($us[$i])) {
-                    $k = (int) $us[$i];
-                    $arr_r1[] = $k;
+        $registerNumber = Register::where('vote_id', $voteId)->where('ticket_number', '>', 1)->get();
+        foreach ($registerNumber as $value) {
+            $user = explode(',', $value->best_friend);
+            for ($i = 0; $i < count($user); $i++) {
+                if (is_numeric($user[$i])) {
+                    $handing = (int) $user[$i];
+                    $arrayRegister[] = $handing;
                 } else {
-                    $arr_r1[] = $us[$i];
+                    $arrayRegister[] = $user[$i];
                 }
 
             }
         }
-        $arr = array_merge($arr_r, $arr_r1);
-        $result = array_unique($arr);
-        $user = User::whereNotIn('id', $result)->get(['id', 'avatar', 'full_name', 'email']);
-        return response()->json($user);
+        $arrayMerge = array_merge($array, $arrayRegister);
+        $result = array_unique($arrayMerge);
+        $users = User::whereNotIn('id', $result)->get(['id', 'avatar', 'full_name', 'email']);
+
+        return $users;
     }
 }

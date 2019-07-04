@@ -38,8 +38,8 @@ class VoteController extends Controller
      */
     public function index()
     {
-        $vote = $this->repository->all($colums = ['*']);
-        return response()->json($vote);
+        $votes = $this->repository->all($colums = ['*']);
+        return $this->success($votes, trans('messages.votes.getListSuccess'));
     }
 
     /**
@@ -51,8 +51,9 @@ class VoteController extends Controller
      */
     public function store(VoteCreateRequest $request)
     {
-        $vote = $this->repository->skipPresenter()->create($request->all());
-        return response()->json($vote->presenter(), Response::HTTP_CREATED);
+        $vote = $this->repository->create($request->all());
+
+        return $this->success($vote, trans('messages.votes.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -65,7 +66,7 @@ class VoteController extends Controller
     public function show($id)
     {
         $vote = $this->repository->find($id);
-        return response()->json($vote);
+        return $this->success($vote, trans('messages.votes.showSuccess'));
     }
 
     /**
@@ -79,7 +80,7 @@ class VoteController extends Controller
     public function update(VoteUpdateRequest $request, $id)
     {
         $vote = $this->repository->update($request->all(), $id);
-        return response()->json($vote, Response::HTTP_OK);
+        return $this->success($vote, trans('messages.votes.updateSuccess'));
     }
 
     /**
@@ -92,7 +93,7 @@ class VoteController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.votes.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -103,7 +104,7 @@ class VoteController extends Controller
     public function searchByTitle(Request $request)
     {
         $result = $this->repository->search($request->title);
-        return response()->json($result);
+        return $this->success($result, trans('messages.votes.success'));
     }
 
     /**
@@ -113,7 +114,7 @@ class VoteController extends Controller
     public function showStatusVote()
     {
         $vote = $this->repository->getStatus();
-        return response()->json($vote);
+        return $this->success($vote, trans('messages.votes.success'));
     }
 
     /**
@@ -121,9 +122,9 @@ class VoteController extends Controller
      * @param  Request $request
      * @return \Illuminate\Http\Response
      */
-    public function inforVotes(Request $request)
+    public function infoVotes(Request $request)
     {
-        $infor = $this->repository->infor($request->vote_id);
-        return $infor;
+        $info = $this->repository->info($request->vote_id);
+        return $this->success($info, trans('messages.votes.success'));
     }
 }

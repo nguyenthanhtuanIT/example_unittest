@@ -49,9 +49,9 @@ class CommentRepositoryEloquent extends BaseRepository implements CommentReposit
      * @param  int $blog_id
      * @return  \Illuminate\Http\Response
      */
-    public function commentsByBlog($blog_id)
+    public function commentsByBlog($blogId)
     {
-        $com = DB::table('comments')
+        $comments = DB::table('comments')
             ->select(
                 'comments.id',
                 'comments.user_id',
@@ -62,7 +62,8 @@ class CommentRepositoryEloquent extends BaseRepository implements CommentReposit
             ->join(
                 'users',
                 'users.id', '=', 'comments.user_id'
-            )->orderBy('id', 'DESC')->where('comments.blog_id', $blog_id)->paginate(8, $columns = ['*']);
-        return $com;
+            )->orderBy('id', 'DESC')->where('comments.blog_id', $blogId)->paginate(8, $columns = ['*']);
+
+        return $comments;
     }
 }

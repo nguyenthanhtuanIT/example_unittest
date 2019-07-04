@@ -39,12 +39,14 @@ class CommentController extends Controller
     {
         $limit = request()->get('limit', null);
         $includes = request()->get('include', '');
+
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
         $comments = $this->repository->paginate($limit, $columns = ['*']);
-        return response()->json($comments);
+
+        return $this->success($comments, trans('messages.comments.getListSuccess'));
     }
 
     /**
@@ -56,8 +58,8 @@ class CommentController extends Controller
      */
     public function store(CommentCreateRequest $request)
     {
-        $comment = $this->repository->skipPresenter()->create($request->all());
-        return response()->json($comment->presenter(), Response::HTTP_CREATED);
+        $comment = $this->repository->create($request->all());
+        return $this->success($comment, trans('messages.comments.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -70,8 +72,7 @@ class CommentController extends Controller
     public function show($id)
     {
         $comment = $this->repository->find($id);
-
-        return response()->json($comment);
+        return $this->success($comment, trans('messages.comments.showSuccess'));
     }
 
     /**
@@ -84,8 +85,8 @@ class CommentController extends Controller
      */
     public function update(CommentUpdateRequest $request, $id)
     {
-        $comment = $this->repository->skipPresenter()->update($request->all(), $id);
-        return response()->json($comment->presenter(), Response::HTTP_OK);
+        $comment = $this->repository->update($request->all(), $id);
+        return $this->success($comment, trans('messages.comments.updateSuccess'));
     }
 
     /**
@@ -98,7 +99,7 @@ class CommentController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.comments.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -106,9 +107,9 @@ class CommentController extends Controller
      * @param  int blog_id
      * @return \Illuminate\Http\Response
      */
-    public function getComments($blog_id)
+    public function getComments($blogId)
     {
-        $res = $this->repository->commentsByBlog($blog_id);
-        return response()->json($res);
+        $result = $this->repository->commentsByBlog($blogId);
+        return $this->success($result->toArray(), trans('messages.comments.success'));
     }
 }

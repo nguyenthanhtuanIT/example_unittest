@@ -9,6 +9,9 @@ namespace App\Models;
  */
 class Films extends BaseModel
 {
+    const SELECTED = 1;
+    const NOTSELECT = 0;
+    const PRICE = 'đ';
     /**
      * The attributes that are mass assignable.
      *

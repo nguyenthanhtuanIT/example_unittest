@@ -6,6 +6,11 @@ use App\User;
 
 class RoleService
 {
+    /**
+     * Add role for user
+     * @param User   $user
+     * @param string $roleName
+     */
     public static function add(User $user, $roleName)
     {
         if (!$roleName) {
@@ -20,6 +25,12 @@ class RoleService
         return $user->roles()->attach($role);
     }
 
+    /**
+     * Sync role of user
+     * @param  User   $user
+     * @param  string $roleName
+     * @return Illuminate\Http\Response
+     */
     public static function sync(User $user, $roleName)
     {
         if (!$roleName) {
