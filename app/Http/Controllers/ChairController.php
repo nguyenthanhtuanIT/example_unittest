@@ -39,12 +39,14 @@ class ChairController extends Controller
     {
         $limit = request()->get('limit', null);
         $includes = request()->get('include', '');
+
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
         $chairs = $this->repository->paginate($limit, $columns = ['*']);
-        return response()->json($chairs);
+
+        return $this->success($chairs, trans('messages.chairs.getListSuccess'));
     }
 
     /**
@@ -57,7 +59,12 @@ class ChairController extends Controller
     public function store(ChairCreateRequest $request)
     {
         $chair = $this->repository->create($request->all());
-        return $chair;
+
+        if (is_null($chair)) {
+            return $this->error(trans('messages.errors.errorChairs'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->success($chair, trans('messages.chairs.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -70,7 +77,7 @@ class ChairController extends Controller
     public function show($id)
     {
         $chair = $this->repository->find($id);
-        return response()->json($chair);
+        return $this->success($chair, trans('messages.chairs.showSuccess'));
     }
 
     /**
@@ -84,7 +91,7 @@ class ChairController extends Controller
     public function update(ChairUpdateRequest $request, $id)
     {
         $chair = $this->repository->update($request->all(), $id);
-        return response()->json($chair, Response::HTTP_OK);
+        return $this->success($chair, trans('messages.chairs.updateSuccess'));
     }
 
     /**
@@ -96,8 +103,9 @@ class ChairController extends Controller
      */
     public function destroy($id)
     {
+
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.chairs.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -105,10 +113,10 @@ class ChairController extends Controller
      * @param  int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function getDiagramChairByVote($vote_id)
+    public function getDiagramChairByVote($voteId)
     {
-        $diagram = $this->repository->diagramChairByVote($vote_id);
-        return $this->repository->parserResult($diagram);
+        $diagram = $this->repository->diagramChairByVote($voteId);
+        return $this->success($diagram, trans('messages.chairs.success'));
     }
 
     /**
@@ -119,7 +127,7 @@ class ChairController extends Controller
     public function updateStatusChair(Request $request)
     {
         $result = $this->repository->updateChairs($request->all());
-        return response()->json($result);
+        return $this->success($result, trans('messages.chairs.success'));
     }
 
     /**
@@ -127,10 +135,10 @@ class ChairController extends Controller
      * @param int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteAll($vote_id)
+    public function deleteAll($voteId)
     {
-        $result = $this->repository->delAll($vote_id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        $this->repository->delAll($voteId);
+        return $this->success([], trans('messages.chairs.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
 }

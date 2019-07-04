@@ -39,12 +39,14 @@ class VoteDetailController extends Controller
     {
         $limit = request()->get('limit', null);
         $includes = request()->get('include', '');
+
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
         $voteDetails = $this->repository->all($columns = ['*']);
-        return response()->json($voteDetails);
+
+        return $this->success($voteDetails, trans('messages.voteDetails.getListSuccess'));
     }
 
     /**
@@ -57,7 +59,7 @@ class VoteDetailController extends Controller
     public function store(Request $request)
     {
         $voteDetail = $this->repository->create($request->all());
-        return response()->json($voteDetail, Response::HTTP_CREATED);
+        return $this->success($voteDetail, trans('messages.voteDetails.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -70,7 +72,7 @@ class VoteDetailController extends Controller
     public function show($id)
     {
         $voteDetail = $this->repository->find($id);
-        return response()->json($voteDetail);
+        return $this->success($voteDetail, trans('messages.voteDetails.showSuccess'));
     }
 
     /**
@@ -83,8 +85,8 @@ class VoteDetailController extends Controller
      */
     public function update(VoteDetailsUpdateRequest $request, $id)
     {
-        $voteDetail = $this->repository->skipPresenter()->update($request->all(), $id);
-        return response()->json($voteDetail->presenter(), Response::HTTP_OK);
+        $voteDetail = $this->repository->update($request->all(), $id);
+        return $this->success($voteDetail, trans('messages.voteDetails.updateSuccess'));
     }
 
     /**
@@ -97,7 +99,7 @@ class VoteDetailController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.voteDetails.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -108,7 +110,7 @@ class VoteDetailController extends Controller
     public function checkVoted(Request $request)
     {
         $check = $this->repository->checkVotes($request->all());
-        return response()->json($check);
+        return $this->success($check, trans('messages.voteDetails.success'));
     }
 
     /**
@@ -118,8 +120,8 @@ class VoteDetailController extends Controller
      */
     public function unVoted(Request $request)
     {
-        $unvote = $this->repository->delVote($request->all());
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        $this->repository->delVote($request->all());
+        return $this->success([], trans('messages.voteDetails.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -127,9 +129,9 @@ class VoteDetailController extends Controller
      * @param  int  $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteAll($vote_id)
+    public function deleteAll($voteId)
     {
-        $del = $this->repository->delAll($vote_id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        $this->repository->delAll($voteId);
+        return $this->success([], trans('messages.voteDetails.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 }

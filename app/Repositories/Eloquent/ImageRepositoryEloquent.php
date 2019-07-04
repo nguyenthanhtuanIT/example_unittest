@@ -12,45 +12,47 @@ use Prettus\Repository\Eloquent\BaseRepository;
  *
  * @package namespace App\Repositories\Eloquent;
  */
-class ImageRepositoryEloquent extends BaseRepository implements ImageRepository {
-	/**
-	 * Specify Model class name
-	 *
-	 * @return string
-	 */
-	public function model() {
-		return MImage::class;
-	}
+class ImageRepositoryEloquent extends BaseRepository implements ImageRepository
+{
+    /**
+     * Specify Model class name
+     *
+     * @return string
+     */
+    public function model()
+    {
+        return MImage::class;
+    }
 
-	public function presenter() {
-		return \App\Presenters\ImagePresenter::class;
-	}
+    public function presenter()
+    {
+        return \App\Presenters\ImagePresenter::class;
+    }
 
-	/**
-	 * Boot up the repository, pushing criteria
-	 */
-	public function boot() {
-		$this->pushCriteria(app(RequestCriteria::class));
-	}
+    /**
+     * Boot up the repository, pushing criteria
+     */
+    public function boot()
+    {
+        $this->pushCriteria(app(RequestCriteria::class));
+    }
 
-	/**
-	 * Override method create to save images
-	 * @param  array  $attributes attributes from request
-	 * @return object
-	 */
-	public function create(array $attributes) {
-		$path = $attributes['photo']->store('photos');
-		//dd($path);
-		list($pathName, $filename) = explode('/', $path);
-		//$imgThumb = $this->model()::make($attributes['photo'])->resize(140, 140)->save(Storage::disk('public')->path('thumbnails') . "/{$filename}");
+    /**
+     * Override method create to save images
+     * @param  array  $attributes attributes from request
+     * @return object
+     */
+    public function create(array $attributes)
+    {
+        $path = $attributes['photo']->store('photos');
+        list($pathName, $filename) = explode('/', $path);
+        $attributes['pathname'] = $path;
+        $attributes['filename'] = $filename;
+        $attributes['name'] = $attributes['photo']->getClientOriginalName();
 
-		$attributes['pathname'] = $path;
-		$attributes['filename'] = $filename;
-		$attributes['name'] = $attributes['photo']->getClientOriginalName();
+        $image = parent::create($attributes);
 
-		$image = parent::create($attributes);
-
-		return $image;
-	}
+        return $image;
+    }
 
 }

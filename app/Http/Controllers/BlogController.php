@@ -37,14 +37,16 @@ class BlogController extends Controller
      */
     public function index()
     {
-        $limit = request()->get('limit', null);
+        $limits = 8;
         $includes = request()->get('include', '');
+
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
-        $blogs = $this->repository->paginate(8, $columns = ['*']);
-        return response()->json($blogs);
+        $blogs = $this->repository->paginate($limits, $columns = ['*']);
+
+        return $this->success($blogs, trans('messages.blogs.getListSuccess'));
     }
 
     /**
@@ -56,8 +58,8 @@ class BlogController extends Controller
      */
     public function store(BlogCreateRequest $request)
     {
-        $blog = $this->repository->skipPresenter()->create($request->all());
-        return response()->json($blog->presenter(), Response::HTTP_CREATED);
+        $blog = $this->repository->create($request->all());
+        return $this->success($blog, trans('messages.blogs.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -70,7 +72,7 @@ class BlogController extends Controller
     public function show($id)
     {
         $blog = $this->repository->find($id);
-        return response()->json($blog);
+        return $this->success($blog, trans('messages.blogs.showSuccess'));
     }
 
     /**
@@ -83,8 +85,8 @@ class BlogController extends Controller
      */
     public function update(BlogUpdateRequest $request, $id)
     {
-        $blog = $this->repository->skipPresenter()->update($request->all(), $id);
-        return response()->json($blog->presenter(), Response::HTTP_OK);
+        $blog = $this->repository->update($request->all(), $id);
+        return $this->success($blog, trans('messages.blogs.updateSuccess'));
     }
 
     /**
@@ -97,7 +99,7 @@ class BlogController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.blogs.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -108,7 +110,7 @@ class BlogController extends Controller
     public function searchBlogByTitle(Request $request)
     {
         $result = $this->repository->searchBlog($request->key);
-        return $this->repository->parserResult($result);
+        return $this->success($result, trans('messages.blogs.success'), ['isContainByDataString' => true]);
     }
 
     /**
@@ -117,7 +119,7 @@ class BlogController extends Controller
      */
     public function getBlog()
     {
-        $result = $this->repository->getAll();
-        return $this->repository->parserResult($result);
+        $lists = $this->repository->getAll();
+        return $this->success($lists, trans('messages.blogs.success'), ['isContainByDataString' => true]);
     }
 }

@@ -13,7 +13,7 @@ use Illuminate\Http\Response;
  *
  * @package namespace App\Http\Controllers;
  */
-class RoomsController extends Controller
+class RoomController extends Controller
 {
     /**
      * @var RoomRepository
@@ -39,12 +39,14 @@ class RoomsController extends Controller
     {
         $limit = request()->get('limit', null);
         $includes = request()->get('include', '');
+
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
         $rooms = $this->repository->paginate($limit, $columns = ['*']);
-        return response()->json($rooms);
+
+        return $this->success($rooms, trans('messages.rooms.getListSuccess'));
     }
     /**
      * Store a newly created resource in storage.
@@ -56,7 +58,7 @@ class RoomsController extends Controller
     public function store(RoomCreateRequest $request)
     {
         $room = $this->repository->create($request->all());
-        return response()->json($room, Response::HTTP_CREATED);
+        return $this->success($room, trans('messages.rooms.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -69,7 +71,7 @@ class RoomsController extends Controller
     public function show($id)
     {
         $room = $this->repository->find($id);
-        return response()->json($room);
+        return $this->success($room, trans('messages.rooms.showSuccess'));
     }
 
     /**
@@ -82,8 +84,8 @@ class RoomsController extends Controller
      */
     public function update(RoomUpdateRequest $request, $id)
     {
-        $room = $this->repository->skipPresenter()->update($request->all(), $id);
-        return response()->json($room->presenter(), Response::HTTP_OK);
+        $room = $this->repository->update($request->all(), $id);
+        return $this->success($room, trans('messages.rooms.updateSuccess'));
     }
 
     /**
@@ -96,7 +98,7 @@ class RoomsController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.rooms.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
 }
