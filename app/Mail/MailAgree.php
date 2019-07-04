@@ -23,7 +23,7 @@ class MailAgree extends Mailable
      */
     public function build()
     {
-        $vote = Vote::whereNotIn('status_vote', ['created', 'end'])->first();
+        $vote = Vote::whereNotIn('status_vote', [Vote::CREATED, Vote::END])->first();
         return $this->view('emails.mail_agree')->with('vote', $vote);
     }
 }

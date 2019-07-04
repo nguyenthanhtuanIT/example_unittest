@@ -18,10 +18,21 @@ class Chair extends BaseModel
      */
     protected $fillable = ['vote_id', 'amount_chairs', 'chairs'];
     protected $hidden = [];
+
+    /**
+     * Custom chair attributes
+     * @param  string $value
+     * @return array
+     */
     public function getChairsAttribute($value)
     {
         return explode(',', $value);
     }
+
+    /**
+     * Get name of vote
+     * @return string
+     */
     public function getVote()
     {
         $vote = Vote::find($this->vote_id);

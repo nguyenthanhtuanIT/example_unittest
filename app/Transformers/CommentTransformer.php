@@ -30,6 +30,11 @@ class CommentTransformer extends \App\Transformers\BaseTransformer
      */
     protected $defaultIncludes = [];
 
+    /**
+     * Transform the custom field entity.
+     *
+     * @return array
+     */
     public function customAttributes($model): array
     {
 
