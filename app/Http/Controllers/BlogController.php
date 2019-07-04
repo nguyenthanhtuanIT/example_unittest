@@ -6,13 +6,14 @@ use App\Http\Requests\BlogCreateRequest;
 use App\Http\Requests\BlogUpdateRequest;
 use App\Repositories\Contracts\BlogRepository;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class BlogsController.
  *
  * @package namespace App\Http\Controllers;
  */
-class BlogsController extends Controller
+class BlogController extends Controller
 {
     /**
      * @var BlogRepository
@@ -37,16 +38,12 @@ class BlogsController extends Controller
     public function index()
     {
         $limit = request()->get('limit', null);
-
         $includes = request()->get('include', '');
-
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
-
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
         $blogs = $this->repository->paginate(8, $columns = ['*']);
-
         return response()->json($blogs);
     }
 
@@ -60,8 +57,7 @@ class BlogsController extends Controller
     public function store(BlogCreateRequest $request)
     {
         $blog = $this->repository->skipPresenter()->create($request->all());
-
-        return response()->json($blog->presenter(), 201);
+        return response()->json($blog->presenter(), Response::HTTP_CREATED);
     }
 
     /**
@@ -74,7 +70,6 @@ class BlogsController extends Controller
     public function show($id)
     {
         $blog = $this->repository->find($id);
-
         return response()->json($blog);
     }
 
@@ -89,8 +84,7 @@ class BlogsController extends Controller
     public function update(BlogUpdateRequest $request, $id)
     {
         $blog = $this->repository->skipPresenter()->update($request->all(), $id);
-
-        return response()->json($blog->presenter(), 200);
+        return response()->json($blog->presenter(), Response::HTTP_OK);
     }
 
     /**
@@ -103,13 +97,24 @@ class BlogsController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
+
+    /**
+     * Search blog by title
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function searchBlogByTitle(Request $request)
     {
         $result = $this->repository->searchBlog($request->key);
         return $this->repository->parserResult($result);
     }
+
+    /**
+     * Get blog sort desc by id
+     * @return \Illuminate\Http\Response
+     */
     public function getBlog()
     {
         $result = $this->repository->getAll();

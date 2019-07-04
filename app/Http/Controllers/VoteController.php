@@ -7,13 +7,14 @@ use App\Http\Requests\VoteUpdateRequest;
 use App\Models\Vote;
 use App\Repositories\Contracts\VoteRepository;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class VotesController.
  *
  * @package namespace App\Http\Controllers;
  */
-class VotesController extends Controller
+class VoteController extends Controller
 {
     /**
      * @var VoteRepository
@@ -51,7 +52,7 @@ class VotesController extends Controller
     public function store(VoteCreateRequest $request)
     {
         $vote = $this->repository->skipPresenter()->create($request->all());
-        return response()->json($vote->presenter(), 201);
+        return response()->json($vote->presenter(), Response::HTTP_CREATED);
     }
 
     /**
@@ -64,7 +65,6 @@ class VotesController extends Controller
     public function show($id)
     {
         $vote = $this->repository->find($id);
-
         return response()->json($vote);
     }
 
@@ -79,7 +79,7 @@ class VotesController extends Controller
     public function update(VoteUpdateRequest $request, $id)
     {
         $vote = $this->repository->update($request->all(), $id);
-        return response()->json($vote, 201);
+        return response()->json($vote, Response::HTTP_OK);
     }
 
     /**
@@ -92,19 +92,35 @@ class VotesController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
+
+    /**
+     * Search vote by title
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function searchByTitle(Request $request)
     {
         $result = $this->repository->search($request->title);
         return response()->json($result);
     }
+
+    /**
+     * Show status of vote
+     * @return \Illuminate\Http\Response
+     */
     public function showStatusVote()
     {
         $vote = $this->repository->getStatus();
         return response()->json($vote);
     }
+
+    /**
+     * Show info of vote
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function inforVotes(Request $request)
     {
         $infor = $this->repository->infor($request->vote_id);

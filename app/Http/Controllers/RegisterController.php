@@ -8,13 +8,14 @@ use App\Http\Requests\RegisterUpdateRequest;
 use App\Repositories\Contracts\RegisterRepository;
 use Excel;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class RegistersController.
  *
  * @package namespace App\Http\Controllers;
  */
-class RegistersController extends Controller
+class RegisterController extends Controller
 {
     /**
      * @var RegisterRepository
@@ -39,7 +40,7 @@ class RegistersController extends Controller
     public function index()
     {
         $register = $this->repository->all($colums = ['*']);
-        return response()->json($register, 201);
+        return response()->json($register, Response::HTTP_OK);
     }
 
     /**
@@ -52,8 +53,7 @@ class RegistersController extends Controller
     public function store(Request $request)
     {
         $register = $this->repository->create($request->all());
-
-        return response()->json($register, 201);
+        return response()->json($register, Response::HTTP_CREATED);
     }
 
     /**
@@ -66,7 +66,6 @@ class RegistersController extends Controller
     public function show($id)
     {
         $register = $this->repository->find($id);
-
         return response()->json($register);
     }
 
@@ -82,7 +81,7 @@ class RegistersController extends Controller
     {
         $register = $this->repository->skipPresenter()
             ->update($request->all(), $id);
-        return response()->json($register->presenter(), 200);
+        return response()->json($register->presenter(), Response::HTTP_OK);
     }
 
     /**
@@ -95,27 +94,57 @@ class RegistersController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
+
+    /**
+     * convert data register to excel
+     * @param int $vote_id
+     * @return \Illuminate\Http\Response
+     */
     public function Export($vote_id)
     {
         return Excel::download(new RegistersExport($vote_id), 'listregister.xlsx');
     }
+
+    /**
+     * Check user register
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function checkRegistered(Request $request)
     {
         $arr = $this->repository->checkRegister($request->all());
         return $arr;
     }
+
+    /**
+     * User unRegister
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function unRegister(Request $request)
     {
         $un = $this->repository->delRegister($request->all());
         return $un;
     }
+
+    /**
+     * User can refuses register
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function guestRefuses(Request $request)
     {
         $ac = $this->repository->guestRefuse($request->all());
-        return response()->json(['status' => $ac], 200);
+        return response()->json(['status' => $ac], Response::HTTP_OK);
     }
+
+    /**
+     * User agree invite
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function userAgree(Request $request)
     {
         $data = $this->repository->agree($request->all());

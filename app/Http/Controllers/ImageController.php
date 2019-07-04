@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
  *
  * @package namespace App\Http\Controllers;
  */
-class ImagesController extends Controller
+class ImageController extends Controller
 {
     /**
      * @var ImageRepository

@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserRegisterRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Repositories\Contracts\UserRepository;
 use App\User;
-use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
  *
  * @package namespace App\Http\Controllers;
  */
-class UsersController extends Controller
+class UserController extends Controller
 {
     /**
      * @var UserRepository
@@ -57,28 +55,6 @@ class UsersController extends Controller
         return response()->json($user);
     }
 
-    public function changePass(ChangePasswordRequest $request)
-    {
-        $request_data = $request->all();
-        $user = \Auth::user();
-        if (Hash::check($request_data['current_password'], $user->password)) {
-            $user->password = Hash::make($request_data['password']);
-            $user->save();
-
-            return response()->json(null, Response::HTTP_NO_CONTENT);
-        } else {
-            $data = [
-                "message" => "The given data was invalid.",
-                'errors' => [
-                    [
-                        'detail' => 'The current password not match',
-                    ],
-                ],
-            ];
-            return response()->json($data, Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-    }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -102,7 +78,6 @@ class UsersController extends Controller
     public function show($id)
     {
         $user = $this->repository->find($id);
-
         return response()->json($user);
     }
 
@@ -117,7 +92,6 @@ class UsersController extends Controller
     public function update(UserUpdateRequest $request, $id)
     {
         $user = $this->repository->update($request->all(), $id);
-
         return response()->json($user, Response::HTTP_CREATED);
 
     }
@@ -132,7 +106,6 @@ class UsersController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -146,10 +119,14 @@ class UsersController extends Controller
     public function register(UserRegisterRequest $request)
     {
         $user = $this->repository->skipPresenter()->create(array_merge($request->all(), ['role' => 'member']));
-
         return $this->presenterPostJson($user);
     }
 
+    /**
+     * Get list user to invite
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function listUsers(Request $request)
     {
         $user = $this->repository->getListUser($request->vote_id);

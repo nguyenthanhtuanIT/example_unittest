@@ -43,6 +43,12 @@ class CommentRepositoryEloquent extends BaseRepository implements CommentReposit
     {
         $this->pushCriteria(app(RequestCriteria::class));
     }
+
+    /**
+     * Get comment by blog
+     * @param  int $blog_id
+     * @return  \Illuminate\Http\Response
+     */
     public function commentsByBlog($blog_id)
     {
         $com = DB::table('comments')

@@ -6,6 +6,7 @@ use App\Http\Requests\RoomCreateRequest;
 use App\Http\Requests\RoomUpdateRequest;
 use App\Repositories\Contracts\RoomRepository;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class RoomsController.
@@ -37,20 +38,14 @@ class RoomsController extends Controller
     public function index()
     {
         $limit = request()->get('limit', null);
-
         $includes = request()->get('include', '');
-
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
-
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
-
         $rooms = $this->repository->paginate($limit, $columns = ['*']);
-
         return response()->json($rooms);
     }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -61,8 +56,7 @@ class RoomsController extends Controller
     public function store(RoomCreateRequest $request)
     {
         $room = $this->repository->create($request->all());
-
-        return response()->json($room, 201);
+        return response()->json($room, Response::HTTP_CREATED);
     }
 
     /**
@@ -75,7 +69,6 @@ class RoomsController extends Controller
     public function show($id)
     {
         $room = $this->repository->find($id);
-
         return response()->json($room);
     }
 
@@ -90,8 +83,7 @@ class RoomsController extends Controller
     public function update(RoomUpdateRequest $request, $id)
     {
         $room = $this->repository->skipPresenter()->update($request->all(), $id);
-
-        return response()->json($room->presenter(), 200);
+        return response()->json($room->presenter(), Response::HTTP_OK);
     }
 
     /**
@@ -104,8 +96,7 @@ class RoomsController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
 }

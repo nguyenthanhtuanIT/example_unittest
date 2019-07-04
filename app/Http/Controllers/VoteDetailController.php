@@ -2,30 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ChooseChairCreateRequest;
-use App\Http\Requests\ChooseChairUpdateRequest;
-use App\Repositories\Contracts\ChooseChairRepository;
+use App\Http\Requests\VoteDetailsCreateRequest;
+use App\Http\Requests\VoteDetailsUpdateRequest;
+use App\Repositories\Contracts\VoteDetailsRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
- * Class ChooseChairsController.
+ * Class VoteDetailsController.
  *
  * @package namespace App\Http\Controllers;
  */
-class ChooseChairsController extends Controller
+class VoteDetailController extends Controller
 {
     /**
-     * @var ChooseChairRepository
+     * @var VoteDetailsRepository
      */
     protected $repository;
 
     /**
-     * ChooseChairsController constructor.
+     * VoteDetailsController constructor.
      *
-     * @param ChooseChairRepository $repository
+     * @param VoteDetailsRepository $repository
      */
-    public function __construct(ChooseChairRepository $repository)
+    public function __construct(VoteDetailsRepository $repository)
     {
         $this->repository = $repository;
     }
@@ -38,29 +38,26 @@ class ChooseChairsController extends Controller
     public function index()
     {
         $limit = request()->get('limit', null);
-
         $includes = request()->get('include', '');
-
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
-
-        $chooseChairs = $this->repository->paginate($limit, $columns = ['*']);
-        return response()->json($chooseChairs);
+        $voteDetails = $this->repository->all($columns = ['*']);
+        return response()->json($voteDetails);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  ChooseChairCreateRequest $request
+     * @param  VoteDetailsCreateRequest $request
      *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        $chooseChair = $this->repository->skipPresenter()->create($request->all());
-        return response()->json($chooseChair, Response::HTTP_CREATED);
+        $voteDetail = $this->repository->create($request->all());
+        return response()->json($voteDetail, Response::HTTP_CREATED);
     }
 
     /**
@@ -72,22 +69,22 @@ class ChooseChairsController extends Controller
      */
     public function show($id)
     {
-        $chooseChair = $this->repository->find($id);
-        return response()->json($chooseChair);
+        $voteDetail = $this->repository->find($id);
+        return response()->json($voteDetail);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  ChooseChairUpdateRequest $request
+     * @param  VoteDetailsUpdateRequest $request
      * @param  string $id
      *
      * @return Response
      */
-    public function update(Request $request, $id)
+    public function update(VoteDetailsUpdateRequest $request, $id)
     {
-        $chooseChair = $this->repository->skipPresenter()->update($request->all(), $id);
-        return response()->json($chooseChair, Response::HTTP_OK);
+        $voteDetail = $this->repository->skipPresenter()->update($request->all(), $id);
+        return response()->json($voteDetail->presenter(), Response::HTTP_OK);
     }
 
     /**
@@ -100,34 +97,36 @@ class ChooseChairsController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
-    public function ticketOfUser(Request $request)
+    /**
+     * Check user voted
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function checkVoted(Request $request)
     {
-        $ticket = $this->repository->ticketUser($request->all());
-        return response()->json($ticket);
-    }
-
-    public function checkUserChoosed(Request $request)
-    {
-        $check = $this->repository->checkChoosed($request->all());
+        $check = $this->repository->checkVotes($request->all());
         return response()->json($check);
     }
 
-    public function reChooses(Request $request)
+    /**
+     * User unvote
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function unVoted(Request $request)
     {
-        $re = $this->repository->reChoose($request->all());
-        return response()->json($re, Response::HTTP_CREATED);
+        $unvote = $this->repository->delVote($request->all());
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
-    public function randChairs(Request $request)
-    {
-        $ac = $this->repository->randChair($request->all());
-        return $ac;
-    }
-
+    /**
+     * Delete all vote detail by vote
+     * @param  int  $vote_id
+     * @return \Illuminate\Http\Response
+     */
     public function deleteAll($vote_id)
     {
         $del = $this->repository->delAll($vote_id);

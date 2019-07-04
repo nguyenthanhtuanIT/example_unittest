@@ -13,7 +13,7 @@ use Illuminate\Http\Response;
  *
  * @package namespace App\Http\Controllers;
  */
-class CinemasController extends Controller
+class CinemaController extends Controller
 {
     /**
      * @var CinemaRepository
@@ -38,14 +38,11 @@ class CinemasController extends Controller
     public function index()
     {
         $limit = request()->get('limit', null);
-
         $includes = request()->get('include', '');
-
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
-
         $cinemas = $this->repository->paginate($limit, $columns = ['*']);
         return response()->json($cinemas);
     }

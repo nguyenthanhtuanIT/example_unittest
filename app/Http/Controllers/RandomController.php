@@ -6,13 +6,14 @@ use App\Http\Requests\RandomCreateRequest;
 use App\Http\Requests\RandomUpdateRequest;
 use App\Repositories\Contracts\RandomRepository;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class RandomsController.
  *
  * @package namespace App\Http\Controllers;
  */
-class RandomsController extends Controller
+class RandomController extends Controller
 {
     /**
      * @var RandomRepository
@@ -37,17 +38,12 @@ class RandomsController extends Controller
     public function index()
     {
         $limit = request()->get('limit', null);
-
         $includes = request()->get('include', '');
-
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
-
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
-
         $randoms = $this->repository->paginate($limit, $columns = ['*']);
-
         return response()->json($randoms);
     }
 
@@ -74,7 +70,6 @@ class RandomsController extends Controller
     public function show($id)
     {
         $random = $this->repository->find($id);
-
         return response()->json($random);
     }
 
@@ -89,8 +84,7 @@ class RandomsController extends Controller
     public function update(RandomUpdateRequest $request, $id)
     {
         $random = $this->repository->skipPresenter()->update($request->all(), $id);
-
-        return response()->json($random->presenter(), 200);
+        return response()->json($random->presenter(), Response::HTTP_OK);
     }
 
     /**
@@ -104,16 +98,28 @@ class RandomsController extends Controller
     {
         $this->repository->delete($id);
 
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
+
+    /**
+     * Get chair by vote (admin)
+     * @param  int $vote_id [description]
+     * @return \Illuminate\Http\Response
+     */
     public function getChairsByVote($vote_id)
     {
         $res = $this->repository->chairsByVote($vote_id);
         return response()->json($res);
     }
+
+    /**
+     * Delete all chair in random table by vote
+     * @param  int $vote_id
+     * @return \Illuminate\Http\Response
+     */
     public function deleteAll($vote_id)
     {
         $result = $this->repository->delAll($vote_id);
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }

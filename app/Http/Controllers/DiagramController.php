@@ -6,13 +6,14 @@ use App\Http\Requests\DiagramCreateRequest;
 use App\Http\Requests\DiagramUpdateRequest;
 use App\Repositories\Contracts\DiagramRepository;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class DiagramsController.
  *
  * @package namespace App\Http\Controllers;
  */
-class DiagramsController extends Controller
+class DiagramController extends Controller
 {
     /**
      * @var DiagramRepository
@@ -37,17 +38,12 @@ class DiagramsController extends Controller
     public function index()
     {
         $limit = request()->get('limit', null);
-
         $includes = request()->get('include', '');
-
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
-
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
-
         $diagrams = $this->repository->custom();
-
         return $diagrams;
     }
 
@@ -74,7 +70,6 @@ class DiagramsController extends Controller
     public function show($id)
     {
         $diagram = $this->repository->find($id);
-
         return response()->json($diagram);
     }
 
@@ -89,7 +84,6 @@ class DiagramsController extends Controller
     public function update(DiagramUpdateRequest $request, $id)
     {
         $diagram = $this->repository->skipPresenter()->update($request->all(), $id);
-
         return response()->json([$diagram]);
     }
 
@@ -103,22 +97,39 @@ class DiagramsController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
+
+    /**
+     * Get Diagram chair by vote
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function diagramChairByVote(Request $request)
     {
         $result = $this->repository->getDiagramChairByVote($request->vote_id);
         return response()->json($result);
     }
+
+    /**
+     * Get diagram by room
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function searchByRoom(Request $request)
     {
         $result = $this->repository->searchByRoomId($request->room_id);
         return $this->repository->parserResult($result);
     }
+
+    /**
+     * Delete all diagram by room_id
+     * @param  int $room_id
+     * @return \Illuminate\Http\Response
+     */
     public function deleteAll($room_id)
     {
         $result = $this->repository->delAll($room_id);
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }

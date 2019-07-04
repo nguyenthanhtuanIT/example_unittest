@@ -6,13 +6,14 @@ use App\Http\Requests\ChairCreateRequest;
 use App\Http\Requests\ChairUpdateRequest;
 use App\Repositories\Contracts\ChairRepository;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class ChairsController.
  *
  * @package namespace App\Http\Controllers;
  */
-class ChairsController extends Controller
+class ChairController extends Controller
 {
     /**
      * @var ChairRepository
@@ -37,17 +38,12 @@ class ChairsController extends Controller
     public function index()
     {
         $limit = request()->get('limit', null);
-
         $includes = request()->get('include', '');
-
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
-
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
-
         $chairs = $this->repository->paginate($limit, $columns = ['*']);
-
         return response()->json($chairs);
     }
 
@@ -74,7 +70,6 @@ class ChairsController extends Controller
     public function show($id)
     {
         $chair = $this->repository->find($id);
-
         return response()->json($chair);
     }
 
@@ -89,8 +84,7 @@ class ChairsController extends Controller
     public function update(ChairUpdateRequest $request, $id)
     {
         $chair = $this->repository->update($request->all(), $id);
-
-        return response()->json($chair, 200);
+        return response()->json($chair, Response::HTTP_OK);
     }
 
     /**
@@ -103,23 +97,40 @@ class ChairsController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
+
+    /**
+     * Get diagram by vote
+     * @param  int $vote_id
+     * @return \Illuminate\Http\Response
+     */
     public function getDiagramChairByVote($vote_id)
     {
         $diagram = $this->repository->diagramChairByVote($vote_id);
         return $this->repository->parserResult($diagram);
     }
+
+    /**
+     * Update status chair to choose chair
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function updateStatusChair(Request $request)
     {
         $result = $this->repository->updateChairs($request->all());
         return response()->json($result);
     }
+
+    /**
+     * Delete all chair by vote
+     * @param int $vote_id
+     * @return \Illuminate\Http\Response
+     */
     public function deleteAll($vote_id)
     {
         $result = $this->repository->delAll($vote_id);
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
 }
