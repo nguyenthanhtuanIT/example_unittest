@@ -7,6 +7,7 @@ use App\Models\Statistical;
 use App\Models\Vote;
 use App\Presenters\FilmsPresenter;
 use App\Repositories\Contracts\filmsRepository;
+use App\Services\UploadService;
 use Illuminate\Support\Facades\Storage;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
@@ -45,85 +46,128 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
     {
         $this->pushCriteria(app(RequestCriteria::class));
     }
+
+    /**
+     * custom create
+     * @param  array  $attributes
+     * @return \Illuminate\Http\Response
+     */
     public function create(array $attributes)
     {
-        $attributes['curency'] = 'đ';
+        $attributes['curency'] = Films::PRICE;
         $name = $attributes['img']->store('photos');
         $link = Storage::url($name);
         $attributes['img'] = $link;
         $film = parent::create($attributes);
-        return response()->json($film);
+
+        return $film;
     }
+
+    /**
+     * custom update
+     * @param  array  $attributes
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(array $attributes, $id)
     {
-
         if (isset($attributes['img'])) {
             $name = $attributes['img']->store('photos');
             $link = Storage::url($name);
             $attributes['img'] = $link;
-
             $img = Films::find($id);
-            $imgold = $img->img;
-            $nameimg = explode('/', $imgold);
-            Storage::delete('/photos/' . $nameimg[5]);
+            $imgOld = $img->img;
+            $nameImg = explode('/', $imgOld);
+            $url = "/photos/$nameImg[5]";
+
+            if (UploadService::checkFileExist($url)) {
+                Storage::delete('/photos/' . $nameImg[5]);
+            }
         }
         $film = parent::update($attributes, $id);
-        return response()->json($film);
+
+        return $film;
     }
+
+    /**
+     * custom delete
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
     public function delete($id)
     {
         $vote = vote::all();
-        foreach ($vote as $val) {
-            $list = $val->list_films;
+        foreach ($vote as $value) {
+            $list = $value->list_films;
             for ($i = 0; $i < count($list); $i++) {
                 if ($list[$i] == $id) {
                     unset($list[$i]);
-                    $str = implode(',', $list);
-                    Vote::where('id', $val->id)->update(['list_films' => $str]);
+                    $films = implode(',', $list);
+                    Vote::where('id', $value->id)->update(['list_films' => $films]);
                 }
             }
         }
-        $film = parent::delete($id);
-        return response()->json(null, 204);
+        return parent::delete($id);
     }
+    /**
+     * Get film has vote max
+     * @param  int $voteId
+     * @param  int $amountVotes
+     * @return \Illuminate\Http\Response
+     */
+    public function getVoteMax($voteId, $amountVotes)
+    {
+        return Statistical::where(['vote_id' => $voteId, 'amount_votes' => $amountVotes]);
+    }
+
+    /**
+     * Get film to vote
+     * @return \Illuminate\Http\Response
+     */
     public function getlistFilmToVote()
     {
-        $vote = Vote::where('status_vote', 'voting')->first();
+        $vote = Vote::where('status_vote', Vote::VOTING)->first();
+
         if (!empty($vote)) {
-            $str = implode(',', $vote->list_films);
-            $arr = explode(',', $str);
-            for ($i = 0; $i < count($arr); $i++) {
-                $film = Films::find($arr[$i]);
-                $a[] = $film;
+            $convert = implode(',', $vote->list_films);
+            $lists = explode(',', $convert);
+            for ($i = 0; $i < count($lists); $i++) {
+                $film = Films::find($lists[$i]);
+                $arrayFilms[] = $film;
             }
-            return response()->json($a);
-        } else {
-            return response()->json(['status' => 'not data']);
+            return $arrayFilms;
         }
+
+        return null;
     }
-    public function filmToRegister($vote_id)
+
+    /**
+     * Get film to register
+     * @param  int $voteId
+     * @return \Illuminate\Http\Response
+     */
+    public function filmToRegister($voteId)
     {
-        $check = Statistical::where(['vote_id' => $vote_id, 'movie_selected' => 1])->get();
-        if ($check->count() != 1) {
-            $max = Statistical::where('vote_id', $vote_id)->max('amount_votes');
-            $statistical = Statistical::where(['vote_id' => $vote_id, 'amount_votes' => $max])->get();
+        $check = Statistical::where(['vote_id' => $voteId, 'movie_selected' => Films::SELECTED])->first();
+
+        if (!$check) {
+            $max = Statistical::where('vote_id', $voteId)->max('amount_votes');
+            $statistical = $this->getVoteMax($voteId, $max)->get();
+
             if (count($statistical) == 1) {
-                foreach ($statistical as $f) {
-                    $film = Films::find($f->films_id);
-                    Statistical::where(['vote_id' => $vote_id, 'amount_votes' => $max])->update(['movie_selected' => 1]);
+                foreach ($statistical as $value) {
+                    $film = Films::find($value->films_id);
+                    $this->getVoteMax($voteId, $max)->update(['movie_selected' => Films::SELECTED]);
                     return $film;
                 }
             } else {
-                $rand = Statistical::where(['vote_id' => $vote_id, 'amount_votes' => $max])->get()->random();
-                $films = Films::find($rand->films_id);
-                Statistical::where(['vote_id' => $vote_id, 'films_id' => $films->id])->update(['movie_selected' => 1]);
+                $random = $this->getVoteMax($voteId, $max)->get()->random();
+                $films = Films::find($random->films_id);
+                Statistical::where(['vote_id' => $voteId, 'films_id' => $films->id])->update(['movie_selected' => Films::SELECTED]);
                 return $films;
             }
-
-        } else {
-            foreach ($check as $value) {
-                return $film = Films::find($value->films_id);
-            }
         }
+
+        return Films::find($check->films_id);
     }
 }
