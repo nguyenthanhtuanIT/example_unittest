@@ -1,16 +1,15 @@
 <?php
 Route::group(['prefix' => 'v1'], function () {
     Route::post('auth/google', 'Auth\AuthGoogleController@login');
-    Route::post('register', 'UserController@register');
     Route::get('list_films', 'FilmController@listFilmToVote');
     Route::get('get_blogs', 'BlogController@getBlog');
     Route::resource('blogs', 'BlogController')->only('index', 'show');
     Route::get('status_vote', 'VoteController@showStatusVote');
-    Route::post('infor_vote', 'VoteController@inforVotes');
+    Route::post('info_vote', 'VoteController@infoVotes');
     Route::post('film_to_register', 'FilmController@getFilmToRegister');
     Route::resource('statisticals', 'StatisticalController');
-    Route::get('user_comment/{blog_id}', 'CommentController@getComments');
-    Route::get('amount_vote_films/{vote_id}', 'StatisticalController@getAmountVote');
+    Route::get('user_comment/{blogId}', 'CommentController@getComments');
+    Route::get('amount_vote_films/{voteId}', 'StatisticalController@getAmountVote');
     Route::post('update_status_chair', 'ChairController@updateStatusChair');
 
     Route::group(['middleware' => ['auth:api']], function () {
@@ -21,7 +20,7 @@ Route::group(['prefix' => 'v1'], function () {
         //user choose chairs
         Route::resource('choose_chairs', 'ChooseChairController');
         //user voting
-        Route::resource('votedetails', 'VoteDetailController');
+        Route::resource('vote_details', 'VoteDetailController');
         // //check voted
         Route::post('check_voted', 'VoteDetailController@checkVoted');
         Route::resource('registers', 'RegisterController');
@@ -46,28 +45,28 @@ Route::group(['prefix' => 'v1'], function () {
             Route::resource('rooms', 'RoomController');
             Route::resource('diagrams', 'DiagramController');
             Route::get('choose_chairs', 'ChooseChairController@index');
-            Route::delete('del_choose_chairs/{vote_id}', 'ChooseChairController@deleteAll');
-            Route::delete('del_chairs/{vote_id}', 'ChairController@deleteAll');
+            Route::delete('del_choose_chairs/{voteId}', 'ChooseChairController@deleteAll');
+            Route::delete('del_chairs/{voteId}', 'ChairController@deleteAll');
             Route::resource('statisticals', 'StatisticalController');
-            Route::delete('del_statisticals/{vote_id}', 'StatisticalController@deleteAll');
-            Route::resource('votedetails', 'VoteDetailController');
-            Route::delete('del_votedetails/{vote_id}', 'VoteDetailController@deleteAll');
-            Route::delete('delete_all/{room_id}', 'DiagramController@deleteAll');
-            Route::delete('del_all/{vote_id}', 'RandomController@deleteAll');
-            Route::resource('votedetails', 'VoteDetailController')->only('index', 'destroy');
+            Route::delete('del_statisticals/{voteId}', 'StatisticalController@deleteAll');
+            Route::resource('vote_details', 'VoteDetailController');
+            Route::delete('del_votedetails/{voteId}', 'VoteDetailController@deleteAll');
+            Route::delete('delete_all/{roomId}', 'DiagramController@deleteAll');
+            Route::delete('del_all/{voteId}', 'RandomController@deleteAll');
+            Route::resource('vote_details', 'VoteDetailController')->only('index', 'destroy');
             Route::resource('registers', 'RegisterController')->only('index', 'destroy');
             Route::post('rand', 'ChooseChairController@randChairs');
-            Route::get('infor_detail/{vote_id}', 'StatisticalController@getInforByVote');
-            Route::get('infor_list_vote', 'StatisticalController@getInfor');
+            Route::get('info_detail/{voteId}', 'StatisticalController@getInfoByVote');
+            Route::get('info_list_vote', 'StatisticalController@getInfo');
             Route::post('search_by_room', 'DiagramController@searchByRoom');
-            Route::get('excel/{vote_id}', 'RegisterController@Export');
+            Route::get('excel/{voteId}', 'RegisterController@Export');
             Route::resource('rands', 'RandomController');
             Route::resource('blogs', 'BlogController');
             Route::resource('chairs', 'ChairController');
             Route::resource('comments', 'CommentController');
             Route::resource('choose_chairs', 'ChooseChairController')->only(['index', 'update', 'destroy']);
-            Route::get('chair_rand_by_vote/{vote_id}', 'RandomController@getChairsByVote');
-            Route::get('chair_by_vote/{vote_id}', 'ChairController@getDiagramChairByVote');
+            Route::get('chair_rand_by_vote/{voteId}', 'RandomController@getChairsByVote');
+            Route::get('chair_by_vote/{voteId}', 'ChairController@getDiagramChairByVote');
         });
     });
 });

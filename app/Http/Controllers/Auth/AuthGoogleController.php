@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AuthFacebookRequest;
 use App\Models\Social;
+use App\Models\User;
 use App\Services\RoleService;
-use App\User;
 use Socialite;
 
 class AuthGoogleController extends Controller

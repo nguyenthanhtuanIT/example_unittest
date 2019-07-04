@@ -13,7 +13,7 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
         // find or create user admin
-        $user = \App\User::firstOrCreate(
+        $user = \App\Models\User::firstOrCreate(
             ['email' => 'dev.fresher@greenglobal.vn'],
             [
                 'full_name' => 'Super Admin',
