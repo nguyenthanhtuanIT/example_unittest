@@ -18,6 +18,10 @@ class Room extends BaseModel
      */
     protected $fillable = ['cinema_id', 'name_room', 'total_chairs'];
 
+    /**
+     * Get name of cinema
+     * @return string
+     */
     public function getCinema()
     {
         $name = Cinema::find($this->cinema_id);

@@ -30,6 +30,11 @@ class CinemaTransformer extends BaseTransformer
      */
     protected $defaultIncludes = [];
 
+    /**
+     * Transform the custom field entity.
+     *
+     * @return array
+     */
     public function customAttributes($model): array
     {
         return [
