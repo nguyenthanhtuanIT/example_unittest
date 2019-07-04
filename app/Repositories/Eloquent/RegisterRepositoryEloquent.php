@@ -7,12 +7,11 @@ use App\Mail\MailCancel;
 use App\Mail\MailFeedback;
 use App\Mail\MailInvite;
 use App\Models\Register;
+use App\Models\User;
 use App\Presenters\RegisterPresenter;
 use App\Repositories\Contracts\RegisterRepository;
 use App\Services\StatisticalService;
 use App\Services\VoteService;
-use App\User;
-use Illuminate\Http\Response;
 use Mail;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
@@ -51,187 +50,269 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
     {
         $this->pushCriteria(app(RequestCriteria::class));
     }
+
+    /**
+     * Custom create function
+     * @param  array  $attributes
+     * @return \Illuminate\Http\Response
+     */
     public function create(array $attributes)
     {
-        $ticket_outsite = 0;
-        $validate = $this->model()::where([
+        $ticketOutsite = 0;
+        $register = null;
+        $count = $this->model()::where([
             'user_id' => $attributes['user_id'],
             'vote_id' => $attributes['vote_id'],
         ])->count();
         $user = User::find($attributes['user_id']);
-        $ticket_number = $attributes['ticket_number'];
-        if ($validate == 1) {
-            return response()->json('ready exited', Response::HTTP_BAD_REQUEST);
+        $ticketNumber = $attributes['ticket_number'];
+
+        if ($count) {
+            return $register;
         } else {
+
             if (!empty($attributes['best_friend'])) {
-                $arr = explode(',', $attributes['best_friend']);
-                if ($ticket_number > count($arr)) {
-                    $ticket_outsite = $ticket_number - 1 - count($arr);
+                $friends = explode(',', $attributes['best_friend']);
+                if ($ticketNumber > count($friends)) {
+                    $ticketOutsite = $ticketNumber - 1 - count($friends);
                 }
-                for ($i = 1; $i <= $ticket_outsite; $i++) {
-                    $arr[] = "$user->full_name $i";
+                for ($i = 1; $i <= $ticketOutsite; $i++) {
+                    $friends[] = "$user->full_name $i";
                 }
-                for ($i = 0; $i < count($arr); $i++) {
-                    if (empty($arr[$i])) {
-                        unset($arr[$i]);
+                for ($i = 0; $i < count($friends); $i++) {
+                    if (empty($friends[$i])) {
+                        unset($friends[$i]);
                     }
                 }
-                for ($i = 0; $i < count($arr); $i++) {
-                    $us = User::find($arr[$i]);
-                    Mail::to($us->email)->queue(new MailInvite($us));
-                }
-                $attributes['best_friend'] = implode(',', $arr);
+                for ($i = 0; $i < count($friends); $i++) {
 
+                    if (is_numeric($friends[$i])) {
+                        $user = User::find($friends[$i]);
+                        Mail::to($user->email)->queue(new MailInvite($user));
+                    }
+                }
+                $attributes['best_friend'] = implode(',', $friends);
             } else {
-                $a = explode(',', $attributes['best_friend']);
-                $ticket_outsite = $ticket_number - 1;
-                for ($i = 1; $i <= $ticket_outsite; $i++) {
+                $listFriend = explode(',', $attributes['best_friend']);
+                $ticketOutsite = $ticketNumber - 1;
+                for ($i = 1; $i <= $ticketOutsite; $i++) {
                     $a[] = "$user->full_name $i";
                 }
-                for ($i = 0; $i < count($a); $i++) {
-                    if (empty($a[$i])) {
-                        unset($a[$i]);
+                for ($i = 0; $i < count($listFriend); $i++) {
+                    if (empty($listFriend[$i])) {
+                        unset($listFriend[$i]);
                     }
                 }
-                $attributes['best_friend'] = implode(',', $a);
+                $attributes['best_friend'] = implode(',', $listFriend);
             }
-            $attributes['ticket_outsite'] = $ticket_outsite;
+            $attributes['ticket_outsite'] = $ticketOutsite;
             $register = parent::create($attributes);
-            StatisticalService::addRegister($register['data']['attributes']['film_id'], $register['data']['attributes']['vote_id']);
-            VoteService::addTicket($register['data']['attributes']['vote_id'], $register['data']['attributes']['ticket_number']);
+            $addRegister = StatisticalService::addRegister($register['data']['attributes']['film_id'], $register['data']['attributes']['vote_id']);
+            $addTicket = VoteService::addTicket($register['data']['attributes']['vote_id'], $register['data']['attributes']['ticket_number']);
+
+            if (!$addRegister || !$addTicket) {
+                return false;
+            }
+
             return $register;
         }
 
     }
+
+    /**
+     * Custom delete
+     * @param  int $id
+     * @return Illuminate\Http\Response
+     */
     public function delete($id)
     {
         $find = Register::find($id);
-        StatisticalService::updateRegister($find->film_id, $find->vote_id);
-        VoteService::deleteTicket($find->vote_id, $find->ticket_number);
-        $register = parent::delete($id);
-        return response()->json(null, 204);
+        $updateRegister = StatisticalService::updateRegister($find->film_id, $find->vote_id);
+        $deleteTicket = VoteService::deleteTicket($find->vote_id, $find->ticket_number);
+
+        if (!$updateRegister || !$deleteTicket) {
+            return false;
+        }
+
+        return parent::delete($id);
     }
+
+    /**
+     * Custom update
+     * @param  array  $attributes
+     * @param  int $id
+     * @returnIlluminate\Http\Response
+     */
     public function update(array $attributes, $id)
     {
+        $register = parent::update($attributes, $id);
+
         if (!empty($attributes['ticket_number'])) {
             $find = Register::find($id);
-            $number_old = $find->ticket_number;
-            $register = parent::update($attributes, $id);
-            $number_new = $register->ticket_number;
-            VoteService::updateTicket($find->vote_id, $number_old, $number_new);
-            return $register;
-        } else {
-            $register = parent::update($attributes, $id);
-            return $register;
+            $numberOld = $find->ticket_number;
+            $numberNew = $register->ticket_number;
+            $updateTicket = VoteService::updateTicket($find->vote_id, $numberOld, $numberNew);
+
+            if (!$updateTicket) {
+                return false;
+            }
         }
+
+        return $register;
     }
+
+    /**
+     * Get user register
+     * @param  int $userId
+     * @param  int $voteId
+     * @return  Illuminate\Http\Response
+     */
+    public function getUserRegister($userId, $voteId)
+    {
+        return Register::where(['user_id' => $userId, 'vote_id' => $voteId]);
+    }
+
+    /**
+     * Check User Register
+     * @param  array  $attributes
+     * @return Illuminate\Http\Response
+     */
     public function checkRegister(array $attributes)
     {
         $check = false;
         $guest = false;
         $agree = false;
-        $data = Register::where(['user_id' => $attributes['user_id'], 'vote_id' => $attributes['vote_id']])->get();
-        $data1 = Register::where('vote_id', $attributes['vote_id'])->where('ticket_number', '>', 1)->get();
-        if (count($data) != 0) {
-            foreach ($data as $value) {
-                $check = true;
-                return response()->json(['check' => $check, 'guest' => $guest, 'user_id' => $value->user_id, 'ticket_number' => $value->ticket_number]);
-            }
-        } elseif ($data1->count() != 0) {
-            foreach ($data1 as $value) {
-                $peo = explode(',', $value->best_friend);
-                for ($i = 0; $i < count($peo); $i++) {
-                    if ($peo[$i] == $attributes['user_id']) {
+        $userRegister = $this->getUserRegister($attributes['user_id'], $attributes['vote_id'])->first();
+        $register = Register::where('vote_id', $attributes['vote_id'])->where('ticket_number', '>', 1)->get();
+
+        if ($userRegister) {
+            $check = true;
+            $data = [
+                'check' => $check,
+                'guest' => $guest,
+                'user_id' => $userRegister->user_id,
+                'ticket_number' => $userRegister->ticket_number,
+            ];
+            return $data;
+        } elseif ($register->count() != 0) {
+            foreach ($register as $value) {
+                $people = explode(',', $value->best_friend);
+                for ($i = 0; $i < count($people); $i++) {
+                    if ($people[$i] == $attributes['user_id']) {
                         $check = true;
                         $guest = true;
                         $id = $value->user_id;
                         $user = User::find($id);
-                        if ($guest == true) {
-                            if (!empty($value->agree)) {
-                                $agr = explode(',', $value->agree);
-                                for ($i = 0; $i < count($agr); $i++) {
-                                    if ($agr[$i] == $attributes['user_id']) {
-                                        $agree = true;
-                                        break;
-                                    }
+                        $data = [
+                            'check' => $check,
+                            'guest' => $guest,
+                            'fullname' => $user->full_name,
+                            'avatar' => $user->avatar,
+                            'user_id' => $id,
+                        ];
+
+                        if (!empty($value->agree)) {
+                            $arrayAgree = explode(',', $value->agree);
+                            for ($i = 0; $i < count($arrayAgree); $i++) {
+                                if ($arrayAgree[$i] == $attributes['user_id']) {
+                                    $agree = true;
+                                    break;
                                 }
                             }
-                            return response()->json(['check' => $check, 'guest' => $guest, 'user_id' => $id, 'fullname' => $user->full_name, 'avatar' => $user->avatar, 'agree' => $agree]);
-                        } else {
-                            return response()->json(['check' => $check, 'guest' => $guest, 'fullname' => $user->full_name, 'avatar' => $user->avatar, 'user_id' => $id]);
-                            break;
+                            $data['agree'] = $agree;
                         }
+                        return $data;
                     }
                 }
             }
         }
-        return response()->json(['check' => $check, 'guest' => $guest]);
+
+        return $data = ['check' => $check, 'guest' => $guest];
     }
+
+    /**
+     * Delete register
+     * @param  array  $attributes
+     * @return bool
+     */
     public function delRegister(array $attributes)
     {
-        $data = Register::where([
-            'vote_id' => $attributes['vote_id'],
-            'user_id' => $attributes['user_id']])->first();
+        $register = $this->getUserRegister($attributes['user_id'], $attributes['vote_id'])->first();
         $user = User::find($attributes['user_id']);
-        if (!empty($data->best_friend)) {
-            $arr = explode(',', $data->best_friend);
-            for ($i = 0; $i < count($arr); $i++) {
-                if (is_numeric($arr[$i])) {
-                    $guest = User::find($arr[$i]);
+
+        if (!empty($register->best_friend)) {
+            $arrayFriends = explode(',', $register->best_friend);
+            for ($i = 0; $i < count($arrayFriends); $i++) {
+                if (is_numeric($arrayFriends[$i])) {
+                    $guest = User::find($arrayFriends[$i]);
                     Mail::to($guest->email)->queue(new MailCancel($user));
                 }
             }
         }
-        $del = $this->delete($data->id);
-        return $del;
+        $this->delete($register->id);
+
+        return true;
     }
+
+    /**
+     * User Refuse
+     * @param  array  $attributes
+     * @return bool
+     */
     public function guestRefuse(array $attributes)
     {
-        $vote_id = $attributes['vote_id'];
-        $user_id = $attributes['user_id'];
-        $guest_id = $attributes['guest_id'];
-        $data = Register::where(['vote_id' => $vote_id,
-            'user_id' => $user_id])->first();
-        $arr = explode(',', $data->best_friend);
-        for ($i = 0; $i < count($arr); $i++) {
-            if ($arr[$i] == $guest_id) {
-                unset($arr[$i]);
+        $voteId = $attributes['vote_id'];
+        $userId = $attributes['user_id'];
+        $guestId = $attributes['guest_id'];
+        $userGuest = $this->getUserRegister($userId, $voteId)->first();
+        $arrayFriends = explode(',', $userGuest->best_friend);
+        for ($i = 0; $i < count($arrayFriends); $i++) {
+            if ($arrayFriends[$i] == $guestId) {
+                unset($arrayFriends[$i]);
                 break;
             }
         }
-        $str = implode(',', $arr);
-        $num = count($arr) + 1;
-        $up = Register::where(['vote_id' => $vote_id,
-            'user_id' => $user_id])->update(['best_friend' => $str, 'ticket_number' => $num]);
-        if ($up == 1) {
-            $new = Register::where(['vote_id' => $vote_id,
-                'user_id' => $user_id])->first();
-            VoteService::updateTicket($vote_id, $data->ticket_number, $new->ticket_number);
+        $convert = implode(',', $arrayFriends);
+        $number = count($arrayFriends) + 1;
+        $update = $this->getUserRegister($userId, $voteId)->update(['best_friend' => $convert, 'ticket_number' => $number]);
+
+        if ($update == 1) {
+            $newRegister = $this->getUserRegister($userId, $voteId)->first();
+            $updateTicket = VoteService::updateTicket($voteId, $userGuest->ticket_number, $newRegister->ticket_number);
+
+            if (!$updateTicket) {
+                return false;
+            }
         }
-        $us = User::find($user_id);
-        Mail::to($us->email)->queue(new MailFeedback());
-        return $c = 'success';
+        $user = User::find($userId);
+        Mail::to($user->email)->queue(new MailFeedback());
+
+        return true;
     }
+
+    /**
+     * User feedback invite
+     * @param  array  $attributes
+     * @return bool
+     */
     public function agree(array $attributes)
     {
-        $data = Register::where(['user_id' => $attributes['user_id'],
-            'vote_id' => $attributes['vote_id']])->first();
-        $arr = array();
-        if (!empty($data->agree)) {
-            $arr = explode(',', $data->agree);
+        $registers = $this->getUserRegister($attributes['user_id'], $attributes['vote_id'])->first();
+        $arrayAgree = [];
+
+        if (!empty($registers->agree)) {
+            $arrayAgree = explode(',', $registers->agree);
         }
-        $arr[] = $attributes['guest_id'];
-        $agree = implode(',', $arr);
-        $update = Register::where(['user_id' => $attributes['user_id'],
-            'vote_id' => $attributes['vote_id']])->update(['agree' => $agree]);
+        $arrayAgree[] = $attributes['guest_id'];
+        $agree = implode(',', $arrayAgree);
+        $update = $this->getUserRegister($attributes['user_id'], $attributes['vote_id'])->update(['agree' => $agree]);
+
         if ($update == 1) {
             $user = User::find($attributes['user_id']);
-            Mail::to('nguyenthanhtuan15.it@gmail.com')->queue(new MailAgree());
-            return ['status' => 'success'];
-        } else {
-            return ['status' => 'fail'];
+            Mail::to($user->email)->queue(new MailAgree());
+            return true;
         }
 
+        return false;
     }
-
 }

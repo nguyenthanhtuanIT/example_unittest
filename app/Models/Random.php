@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\User;
+use App\Models\User;
 
 /**
  * Class Random.
@@ -17,6 +17,11 @@ class Random extends BaseModel
      * @var array
      */
     protected $fillable = ['vote_id', 'viewers', 'seats'];
+
+    /**
+     * Get name of user
+     * @return string
+     */
     public function nameUser()
     {
         $user = User::find($this->viewers);

@@ -29,7 +29,7 @@ class NotificationMessage extends Mailable
      */
     public function build()
     {
-        $vote = Vote::where('status_vote', 'voting')->first();
+        $vote = Vote::where('status_vote', Vote::VOTING)->first();
         return $this->view('emails.mail_notification')
             ->with('votes', $vote);
     }

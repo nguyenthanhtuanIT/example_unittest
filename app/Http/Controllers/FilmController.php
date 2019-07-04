@@ -49,7 +49,7 @@ class FilmController extends Controller
 
         $films = $this->repository->paginate($limit, $columns = ['*']);
 
-        return response()->json($films);
+        return $this->success($films, trans('messages.films.getListSuccess'));
     }
 
     /**
@@ -63,7 +63,7 @@ class FilmController extends Controller
     {
         $film = $this->repository->create($request->all());
 
-        return response()->json($film, Response::HTTP_CREATED);
+        return $this->success($film, trans('messages.films.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -77,7 +77,7 @@ class FilmController extends Controller
     {
         $film = $this->repository->find($id);
 
-        return response()->json($film);
+        return $this->success($film, trans('messages.films.showSuccess'));
     }
 
     /**
@@ -91,7 +91,7 @@ class FilmController extends Controller
     public function update(Request $request, $id)
     {
         $film = $this->repository->update($request->all(), $id);
-        return response()->json($film, Response::HTTP_OK);
+        return $this->success($film, trans('messages.films.updateSuccess'));
     }
 
     /**
@@ -104,7 +104,7 @@ class FilmController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.films.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -114,7 +114,12 @@ class FilmController extends Controller
     public function listFilmToVote()
     {
         $film = $this->repository->getlistFilmToVote();
-        return response()->json($film);
+
+        if (is_null($film)) {
+            return $this->success($film, trans('messages.films.dataEmpty'), ['isContainByDataString' => true]);
+        }
+
+        return $this->success(['data' => $film], trans('messages.films.success'));
     }
 
     /**
@@ -125,6 +130,6 @@ class FilmController extends Controller
     public function getFilmToRegister(Request $request)
     {
         $film = $this->repository->filmToRegister($request->vote_id);
-        return $this->repository->parserResult($film);
+        return $this->success($film, trans('messages.films.success'), ['isContainByDataString' => true]);
     }
 }
