@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StatisticalCreateRequest;
 use App\Http\Requests\StatisticalUpdateRequest;
 use App\Repositories\Contracts\StatisticalRepository;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -39,12 +38,14 @@ class StatisticalController extends Controller
     {
         $limit = request()->get('limit', null);
         $includes = request()->get('include', '');
+
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
         $statisticals = $this->repository->all($columns = ['*']);
-        return response()->json($statisticals);
+
+        return $this->success($statisticals, trans('messages.statisticals.getListSuccess'));
     }
 
     /**
@@ -57,7 +58,7 @@ class StatisticalController extends Controller
     public function store(StatisticalCreateRequest $request)
     {
         $statistical = $this->repository->create($request->all());
-        return response()->json($statistical, Response::HTTP_CREATED);
+        return $this->success($statistical, trans('messages.statisticals.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -70,7 +71,7 @@ class StatisticalController extends Controller
     public function show($id)
     {
         $statistical = $this->repository->find($id);
-        return response()->json($statistical);
+        return $this->success($statistical, trans('messages.statisticals.showSuccess'));
     }
 
     /**
@@ -84,7 +85,7 @@ class StatisticalController extends Controller
     public function update(StatisticalUpdateRequest $request, $id)
     {
         $statistical = $this->repository->update($request->all(), $id);
-        return response()->json($statistical, Response::HTTP_OK);
+        return $this->success($statistical, trans('messages.statisticals.updateSuccess'));
     }
 
     /**
@@ -97,7 +98,7 @@ class StatisticalController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.statisticals.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -105,10 +106,15 @@ class StatisticalController extends Controller
      * @param  int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function getInforByVote($vote_id)
+    public function getInfoByVote($voteId)
     {
-        $result = $this->repository->inforByVote($vote_id);
-        return response()->json($result);
+        $result = $this->repository->infoByVote($voteId);
+
+        if (empty($result)) {
+            return $this->success($result, trans('messages.statisticals.movieEmpty'), ['isContainByDataString' => true]);
+        }
+
+        return $this->success($result, trans('messages.statisticals.success'), ['isContainByDataString' => true]);
     }
 
     /**
@@ -116,10 +122,14 @@ class StatisticalController extends Controller
      * @param  int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function getAmountVote($vote_id)
+    public function getAmountVote($voteId)
     {
-        $result = $this->repository->amountVoteOfFilm($vote_id);
-        return response()->json($result);
+        $result = $this->repository->amountVoteOfFilm($voteId);
+
+        if (empty($result)) {
+            return $this->success($result, trans('messages.statisticals.dataEmpty'), ['isContainByDataString' => true]);
+        }
+        return $this->success($result, trans('messages.statisticals.success'), ['isContainByDataString' => true]);
     }
 
     /**
@@ -127,19 +137,24 @@ class StatisticalController extends Controller
      * @param  int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteAll($vote_id)
+    public function deleteAll($voteId)
     {
-        $del = $this->repository->delAll($vote_id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        $this->repository->delAll($voteId);
+        return $this->success([], trans('messages.statisticals.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
      * Get info to statistical
      * @return \Illuminate\Http\Response
      */
-    public function getInfor()
+    public function getInfo()
     {
-        $res = $this->repository->inforAll();
-        return $res;
+        $result = $this->repository->infoAll();
+
+        if (empty($result)) {
+            return $this->success($result, trans('messages.statisticals.movieEmpty'), ['isContainByDataString' => true]);
+        }
+
+        return $this->success($result, trans('messages.statisticals.success'), ['isContainByDataString' => true]);
     }
 }
