@@ -45,6 +45,11 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
         $this->pushCriteria(app(RequestCriteria::class));
     }
 
+    /**
+     * Custom create
+     * @param  array  $attributes
+     * @return  \Illuminate\Http\Response
+     */
     public function create(array $attributes)
     {
 
@@ -53,28 +58,44 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
         return $VoteDetails;
 
     }
+
+    /**
+     * Custom delete
+     * @param  int $id
+     * @return  Illuminate\Http\Response;
+     */
     public function delete($id)
     {
-        $data = VoteDetails::find($id);
-        StatisticalService::updateRow($data->film_id, $data->vote_id);
+        $votedetail = VoteDetails::find($id);
+        StatisticalService::updateRow($votedetail->film_id, $votedetail->vote_id);
         $VoteDetails = parent::delete($id);
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * Check User voted
+     * @param  array  $attributes
+     * @return Illuminate\Http\Response
+     */
     public function checkVotes(array $attributes)
     {
-        $user_id = $attributes['user_id'];
-        $vote_id = $attributes['vote_id'];
-        $data = $this->model()::where(['user_id' => $user_id, 'vote_id' => $vote_id])->get();
-        if (count($data) != 0) {
-            foreach ($data as $value) {
-                $arr[] = $value->film_id;
+        $useId = $attributes['user_id'];
+        $voteId = $attributes['vote_id'];
+        $votedetails = $this->model()::where(['user_id' => $useId, 'vote_id' => $voteId])->get();
+        if (count($votedetails) != 0) {
+            foreach ($votedetails as $value) {
+                $lists[] = $value->film_id;
             }
-            return response()->json($arr);
-        } else {
-            return response()->json([]);
+            return response()->json($lists);
         }
+        return response()->json([]);
     }
+
+    /**
+     * Delete vote
+     * @param  array  $attributes
+     * @return Illuminate\Http\Response
+     */
     public function delVote(array $attributes)
     {
         $votedetail = VoteDetails::where([
@@ -82,12 +103,18 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
             'film_id' => $attributes['film_id'],
             'user_id' => $attributes['user_id'],
         ])->first();
-        $del = $this->delete($votedetail->id);
-        return $del;
+        $delete = $this->delete($votedetail->id);
+        return $delete;
     }
-    public function delAll($vote_id)
+
+    /**
+     * Delete votedetail by vote
+     * @param  array  $attributes
+     * @return Illuminate\Http\Response
+     */
+    public function delAll($voteId)
     {
-        $del = VoteDetails::where('vote_id', $vote_id)->delete();
-        return response()->json(null, 204);
+        $delete = VoteDetails::where('vote_id', $voteId)->delete();
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }

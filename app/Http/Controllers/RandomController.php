@@ -106,10 +106,10 @@ class RandomController extends Controller
      * @param  int $vote_id [description]
      * @return \Illuminate\Http\Response
      */
-    public function getChairsByVote($vote_id)
+    public function getChairsByVote($voteId)
     {
-        $res = $this->repository->chairsByVote($vote_id);
-        return response()->json($res);
+        $result = $this->repository->chairsByVote($voteId);
+        return response()->json($result);
     }
 
     /**
@@ -117,9 +117,9 @@ class RandomController extends Controller
      * @param  int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteAll($vote_id)
+    public function deleteAll($voteId)
     {
-        $result = $this->repository->delAll($vote_id);
+        $result = $this->repository->delAll($voteId);
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }

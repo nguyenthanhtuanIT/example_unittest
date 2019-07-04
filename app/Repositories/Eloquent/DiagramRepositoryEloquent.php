@@ -44,46 +44,83 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
     {
         $this->pushCriteria(app(RequestCriteria::class));
     }
+
+    /**
+     * Custom index
+     * @return Illuminate\Http\Response
+     */
     public function custom()
     {
         return Diagram::get();
     }
+
+    /**
+     * custom function create
+     * @param  array  $attributes
+     * @return Illuminate\Http\Response
+     */
     public function create(array $attributes)
     {
-        $validate = $this->model()::where([
+        $diagram = $this->model()::where([
             'row_of_seats' => $attributes['row_of_seats'],
             'room_id' => $attributes['room_id'],
         ])->count();
-        if ($validate == 1) {
+        if ($diagram) {
             return response()->json('row_of_seats exited', Response::HTTP_BAD_REQUEST);
         } else {
-            $diagram = parent::create($attributes);
-            return response()->json([$diagram]);
+            $diagrams = parent::create($attributes);
+            return response()->json([$diagrams]);
         }
     }
-    public function getDiagramChairByVote($vote_id)
-    {
-        $vote = Vote::find($vote_id);
-        if ($vote->room_id != 0) {
-            $diagram = Diagram::where('room_id', $vote->room_id)->get();
-            return response()->json($diagram);
-        } else {
-            return response()->json(['status' => 'not room']);
-        }
 
-    }
-    public function searchByRoomId($room_id)
+/**
+ * Get diagram by room
+ * @param  int $room_id
+ * @return Illuminate\Http\Response
+ */
+    public function getDiagramByRoom($roomId)
     {
-        $diagram = Diagram::where('room_id', $room_id)->get();
+        return $this->model()::where('room_id', $roomId);
+    }
+
+/**
+ * Get diagram chair of vote
+ * @param  int $vote_id [description]
+ * @return Illuminate\Http\Response
+ */
+    public function getDiagramChairByVote($voteId)
+    {
+        $vote = Vote::find($voteId);
+        if ($vote->room_id != 0) {
+            $diagram = $this->getDiagramByRoom($vote->room_id)->get();
+            return response()->json($diagram);
+        }
+        return response()->json(['status' => 'not room']);
+    }
+
+    /**
+     * Search diagram by room
+     * @param  int $room_id
+     * @return Illuminate\Http\Response
+     */
+    public function searchByRoomId($roomId)
+    {
+        $diagram = $this->getDiagramByRoom($roomId)->get();
         if ($diagram) {
             return $diagram;
-        } else {
-            return response()->json('not room', Response::HTTP_BAD_REQUEST);
         }
+        return response()->json('not room', Response::HTTP_BAD_REQUEST);
+
     }
-    public function delAll($room_id)
+
+    /**
+     * Delete diagram all by room
+     * @param  int $room_id
+     * @return Illuminate\Http\Response
+     */
+    public function delAll($roomId)
     {
-        $data = Diagram::where('room_id', $room_id)->delete();
-        return response()->json(null, 204);
+        $data = $this->getDiagramByRoom($roomId)->delete();
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }

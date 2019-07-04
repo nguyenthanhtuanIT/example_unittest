@@ -13,7 +13,7 @@ use Illuminate\Http\Response;
  *
  * @package namespace App\Http\Controllers;
  */
-class RoomsController extends Controller
+class RoomController extends Controller
 {
     /**
      * @var RoomRepository

@@ -10,6 +10,7 @@ use App\Presenters\ChooseChairPresenter;
 use App\Repositories\Contracts\ChooseChairRepository;
 use App\User;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
 
@@ -48,12 +49,30 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         $this->pushCriteria(app(RequestCriteria::class));
     }
 
+    /**
+     * Get chair choosed of user by vote
+     * @param  int $userId
+     * @param  int $voteId
+     * @return \Illuminate\Http\Response
+     */
+    public function getOfUserByVote($userId, $voteId)
+    {
+        return $this->model()::where([
+            'user_id' => $userId,
+            'vote_id' => $voteId,
+        ]);
+    }
+    /**
+     * custom create
+     * @param  array  $attributes
+     * @return \Illuminate\Http\Response
+     */
     public function create(array $attributes)
     {
-        $validate = $this->model()::where(['user_id' => $attributes['user_id'], 'vote_id' => $attributes['vote_id']])->get();
-        if ($validate->count() == 1) {
-            foreach ($validate as $v) {
-                $chairs = $this->model()::whereNotIn('id', [$v->id])->where('vote_id', $attributes['vote_id'])->get();
+        $count = $this->getOfUserByVote($attributes['user_id'], $attributes['vote_id'])->get();
+        if ($count->count()) {
+            foreach ($count as $value) {
+                $chairs = $this->model()::whereNotIn('id', [$value->id])->where('vote_id', $attributes['vote_id'])->get();
             }
             $seat = explode(',', $attributes['seats']);
             foreach ($chairs as $val) {
@@ -67,10 +86,10 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                     }
                 }
             }
-            $del = $this->model()::find($v->id);
-            $del->delete();
-            $res = parent::create($attributes);
-            return $res;
+            $delete = $this->model()::find($value->id);
+            $delete->delete();
+            $results = parent::create($attributes);
+            return $results;
         } else {
             $chairs = $this->model()::where('vote_id', $attributes['vote_id'])->get();
             $seat = explode(',', $attributes['seats']);
@@ -90,145 +109,170 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         return $result;
     }
 
+    /**
+     * Get total ticket of user
+     * @param  array  $attributes
+     * @return \Illuminate\Http\Response
+     */
     public function ticketUser(array $attributes)
     {
-        $ticket = Register::where('user_id', 1)
+        $ticket = Register::where('user_id', Auth::user()->id)
             ->where('vote_id', $attributes['vote_id'])->get(['ticket_number']);
         return response()->json($ticket[0]);
     }
 
+    /**
+     * Check status choose chair of user
+     * @param  array  $attributes
+     * @return \Illuminate\Http\Response
+     */
     public function checkChoosed(array $attributes)
     {
         $check = false;
         $user = '';
         $register = Register::where('vote_id', $attributes['vote_id'])->where('ticket_number', '>', 1)->get();
-        foreach ($register as $val) {
-            $arr = explode(',', $val->best_friend);
-            for ($i = 0; $i < count($arr); $i++) {
-                if ($arr[$i] == $attributes['user_id']) {
-                    $user = $val->user_id;
+        foreach ($register as $value) {
+            $arrayFriend = explode(',', $value->best_friend);
+            for ($i = 0; $i < count($arrayFriend); $i++) {
+                if ($arrayFriend[$i] == $attributes['user_id']) {
+                    $user = $value->user_id;
                     break;
                 }
             }
         }
         if ($user == '') {
-            $data = $this->model()::where(['user_id' => $attributes['user_id'], 'vote_id' => $attributes['vote_id']])->first();
-            if ($data) {
-                if ($data->count() != 0) {
-                    $check = true;
-                    return array('check' => $check, 'seats' => $data->seats);
-                }
-            } else {
-                $data2 = $this->model()::where(['user_id' => $user, 'vote_id' => $attributes['vote_id']])->first();
-                if ($data2) {
-                    if ($data2->count() != 0) {
-                        $check = true;
-                        return array('check' => $check, 'seats' => $data2->seats);
-                    }
-                }
+            $choosed = $this->getOfUserByVote($attributes['user_id'], $attributes['vote_id'])->first();
+
+            if (!$choosed) {
+                $choosed = $this->getOfUserByVote($user, $attributes['vote_id'])->first();
+            }
+            if ($choosed->count() != 0) {
+                $check = true;
+                return array('check' => $check, 'seats' => $choosed->seats);
             }
         }
         return array('check' => $check);
     }
 
+    /**
+     * User rechoose chairs
+     * @param  array  $attributes
+     * @return \Illuminate\Http\Response
+     */
     public function reChoose(array $attributes)
     {
-        $find = $this->model()::where(['user_id' => $attributes['user_id'],
-            'vote_id' => $attributes['vote_id']])->first();
-        $del = $this->model()::find($find->id);
-        $del->delete();
-        $res = parent::create($attributes);
-        return $res;
+        $find = $this->getOfUserByVote($attributes['user_id'], $attributes['vote_id'])->first();
+        $delete = $this->model()::find($find->id);
+        $delete->delete();
+        $result = parent::create($attributes);
+        return $result;
     }
 
+    /**
+     * handling data
+     * @param  array  $attributes
+     * @return \Illuminate\Http\Response
+     */
     public function randChair(array $attributes)
     {
         $vote = Vote::find($attributes['vote_id']);
         if ($vote->status_vote != 'booking_chair') {
             return response()->json('time is invalid', Response::HTTP_BAD_REQUEST);
         } else {
-            $data = Register::where('vote_id', $vote->id)->get();
-            $data1 = Chair::where('vote_id', $vote->id)->get();
-            if (count($data1) == 0) {
+            $register = Register::where('vote_id', $vote->id)->get();
+            $chairs = Chair::where('vote_id', $vote->id)->get();
+            if (count($chairs) == 0) {
                 return response()->json('not data chairs', Response::HTTP_BAD_REQUEST);
             }
 
-            $publish = $seats = $viewers = $b = $c = $a = $r = array();
-            foreach ($data as $val) {
-                if ($val->ticket_number == 1) {
-                    $name = User::find($val->user_id);
-                    $a[] = array($name->full_name);
-                } elseif ($val->ticket_number > 1) {
-                    $n = User::find($val->user_id);
-                    $b = array($n->full_name);
-                    $ex = explode(',', $val->best_friend);
-                    for ($i = 0; $i < count($ex); $i++) {
-                        if (is_numeric($ex[$i])) {
-                            $k = (int) $ex[$i];
-                            if ($k != 0) {
-                                $name = User::find($k);
-                                $b[] = $name->full_name;
+            $publish = $seats = $viewers = $array = $temp = $arrayName = $array_result = array();
+            foreach ($register as $value) {
+                if ($value->ticket_number == 1) {
+                    $name = User::find($value->user_id);
+                    $arrayName[] = array($name->full_name);
+                } elseif ($value->ticket_number > 1) {
+                    $findUser = User::find($value->user_id);
+                    $array = array($findUser->full_name);
+                    $friend = explode(',', $value->best_friend);
+                    for ($i = 0; $i < count($friend); $i++) {
+                        if (is_numeric($friend[$i])) {
+                            $convert = (int) $friend[$i];
+                            if ($convert != 0) {
+                                $name = User::find($convert);
+                                $array[] = $name->full_name;
                             }
                         } else {
-                            $b[] = $ex[$i];
+                            $array[] = $friend[$i];
                         }
                     }
-                    $c[] = $b;
+                    $temp[] = $array;
                 }
             }
-            $viewers = array_merge($a, $c);
+            $viewers = array_merge($arrayName, $temp);
             //seats
-            foreach ($data1 as $val) {
-                $arr = $val->chairs;
-                $d = array();
-                for ($i = 0; $i < count($arr); $i++) {
-                    $d[] = $arr[$i];
+            foreach ($chairs as $value) {
+                $arrayChairs = $value->chairs;
+                $arraySeats = array();
+                for ($i = 0; $i < count($arrayChairs); $i++) {
+                    $arraySeats[] = $arrayChairs[$i];
                 }
-                sort($d, SORT_STRING);
-                for ($i = 0; $i < count($d); $i++) {
-                    if ($i == (count($d) - 1)) {
-                        $str = substr($d[$i], 0, 1);
-                        $num = (int) substr($d[$i], 1);
-                        $str1 = substr($d[$i - 1], 0, 1);
-                        $num1 = (int) substr($d[$i - 1], 1);
-                        if (ord($str) == ord($str1) && $num1 == $num - 1) {
-                            $publish[] = $d[$i];
-                            $r[] = $publish;
+                sort($arraySeats, SORT_STRING);
+                for ($i = 0; $i < count($arraySeats); $i++) {
+                    if ($i == (count($arraySeats) - 1)) {
+                        $handingString = substr($arraySeats[$i], 0, 1);
+                        $numberSeat = (int) substr($arraySeats[$i], 1);
+                        $subString = substr($arraySeats[$i - 1], 0, 1);
+                        $numberSeatConvert = (int) substr($arraySeats[$i - 1], 1);
+                        if (ord($handingString) == ord($subString) && $numberSeatConvert == $numberSeat - 1) {
+                            $publish[] = $arraySeats[$i];
+                            $array_result[] = $publish;
                         } else {
-                            $r[] = $publish;
-                            $publish = array($d[$i]);
-                            $r[] = $publish;
+                            $array_result[] = $publish;
+                            $publish = array($arraySeats[$i]);
+                            $array_result[] = $publish;
                         }
                     } else {
                         if (empty($publish)) {
-                            $publish = array($d[$i]);
+                            $publish = array($arraySeats[$i]);
                         } else {
-                            $str = substr($d[$i], 0, 1);
-                            $num = (int) substr($d[$i], 1);
-                            $str1 = substr($d[$i - 1], 0, 1);
-                            $num1 = (int) substr($d[$i - 1], 1);
-                            if (ord($str) == ord($str1) && $num1 == $num - 1) {
-                                $publish[] = $d[$i];
+                            $handingString = substr($arraySeats[$i], 0, 1);
+                            $numberSeat = (int) substr($arraySeats[$i], 1);
+                            $subString = substr($arraySeats[$i - 1], 0, 1);
+                            $numberSeatConvert = (int) substr($arraySeats[$i - 1], 1);
+                            if (ord($handingString) == ord($subString) && $numberSeatConvert == $numberSeat - 1) {
+                                $publish[] = $arraySeats[$i];
                             } else {
-                                $r[] = $publish;
-                                $publish = array($d[$i]);
+                                $array_result[] = $publish;
+                                $publish = array($arraySeats[$i]);
                             }
                         }
                     }
                 }
-                $seats = $r;
+                $seats = $array_result;
                 $result = $this->shuffle_seats($seats, $viewers, $vote->id);
                 return $result;
             }
         }
     }
 
-    public function delAll($vote_id)
+    /**
+     * Delete all chair user choosed by vote
+     * @param  int $vote_id
+     * @return \Illuminate\Http\Response
+     */
+    public function delAll($voteId)
     {
-        $del = ChooseChair::where('vote_id', $vote_id)->delete();
+        $del = ChooseChair::where('vote_id', $voteId)->delete();
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * random seats
+     * @param  array  $seats
+     * @param  array  $viewers
+     * @param  int $vote_id
+     * @return \Illuminate\Http\Response
+     */
     public function shuffle_seats($seats = [], $viewers = [], $vote_id)
     {
         $seats = array_values($seats);
@@ -262,7 +306,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         }
         // number of viewers must smaller than number of seats
         if (count($original_viewers) > count($original_seats)) {
-            return response()->json('row_of_seats exited', Response::HTTP_BAD_REQUEST);
+            return response()->json('number of viewers must smaller than number of seats', Response::HTTP_BAD_REQUEST);
         }
         // prepare data: sort viewers and shuffle seats...
         shuffle($viewers);

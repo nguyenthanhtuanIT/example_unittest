@@ -105,9 +105,9 @@ class ChairController extends Controller
      * @param  int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function getDiagramChairByVote($vote_id)
+    public function getDiagramChairByVote($voteId)
     {
-        $diagram = $this->repository->diagramChairByVote($vote_id);
+        $diagram = $this->repository->diagramChairByVote($voteId);
         return $this->repository->parserResult($diagram);
     }
 
@@ -127,9 +127,9 @@ class ChairController extends Controller
      * @param int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteAll($vote_id)
+    public function deleteAll($voteId)
     {
-        $result = $this->repository->delAll($vote_id);
+        $result = $this->repository->delAll($voteId);
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 

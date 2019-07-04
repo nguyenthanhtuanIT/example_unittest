@@ -106,9 +106,9 @@ class CommentController extends Controller
      * @param  int blog_id
      * @return \Illuminate\Http\Response
      */
-    public function getComments($blog_id)
+    public function getComments($blogId)
     {
-        $res = $this->repository->commentsByBlog($blog_id);
-        return response()->json($res);
+        $result = $this->repository->commentsByBlog($blogId);
+        return response()->json($result);
     }
 }

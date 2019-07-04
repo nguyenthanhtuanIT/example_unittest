@@ -127,9 +127,9 @@ class DiagramController extends Controller
      * @param  int $room_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteAll($room_id)
+    public function deleteAll($roomId)
     {
-        $result = $this->repository->delAll($room_id);
+        $result = $this->repository->delAll($roomId);
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }

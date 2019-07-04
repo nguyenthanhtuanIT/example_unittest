@@ -105,9 +105,9 @@ class StatisticalController extends Controller
      * @param  int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function getInforByVote($vote_id)
+    public function getInforByVote($voteId)
     {
-        $result = $this->repository->inforByVote($vote_id);
+        $result = $this->repository->inforByVote($voteId);
         return response()->json($result);
     }
 
@@ -116,9 +116,9 @@ class StatisticalController extends Controller
      * @param  int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function getAmountVote($vote_id)
+    public function getAmountVote($voteId)
     {
-        $result = $this->repository->amountVoteOfFilm($vote_id);
+        $result = $this->repository->amountVoteOfFilm($voteId);
         return response()->json($result);
     }
 
@@ -127,9 +127,9 @@ class StatisticalController extends Controller
      * @param  int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteAll($vote_id)
+    public function deleteAll($voteId)
     {
-        $del = $this->repository->delAll($vote_id);
+        $del = $this->repository->delAll($voteId);
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 

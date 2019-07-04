@@ -43,44 +43,62 @@ class RandomRepositoryEloquent extends BaseRepository implements RandomRepositor
     {
         $this->pushCriteria(app(RequestCriteria::class));
     }
+
+    /**
+     * Custom create
+     * @param  array  $attributes
+     * @return \Illuminate\Http\Response
+     */
     public function create(array $attributes)
     {
-        $vote_id = 0;
+        $voteId = 0;
         $check = 0;
         $array = explode(';', $attributes['rand']);
         for ($i = 0; $i < count($array); $i++) {
-            $ar = explode(',', $array[$i]);
-            for ($j = 0; $j < count($ar); $j++) {
-                $vote_id = $ar[0];
+            $convert = explode(',', $array[$i]);
+            for ($j = 0; $j < count($convert); $j++) {
+                $voteId = $convert[0];
             }
         }
-        $check = Random::where('vote_id', $vote_id)->count();
+        $check = Random::where('vote_id', $voteId)->count();
         if ($check != 0) {
             return response()->json('vote_id exited', Response::HTTP_BAD_REQUEST);
         } else {
-            $arr = explode(';', $attributes['rand']);
-            for ($i = 0; $i < count($arr); $i++) {
-                $a = explode(',', $arr[$i]);
-                $vote_id = $a[0];
+            $array = explode(';', $attributes['rand']);
+            for ($i = 0; $i < count($array); $i++) {
+                $arrayChill = explode(',', $array[$i]);
+                $voteId = $arrayChill[0];
                 $random = new Random;
-                $random->vote_id = $a[0];
-                $random->seats = $a[1];
-                $random->viewers = $a[2];
+                $random->vote_id = $arrayChill[0];
+                $random->seats = $arrayChill[1];
+                $random->viewers = $arrayChill[2];
                 $random->save();
             }
-            $all = Random::where('vote_id', $vote_id)->get();
+            $all = Random::where('vote_id', $voteId)->get();
             return response()->json($all);
         }
     }
-    public function chairsByVote($vote_id)
+
+    /**
+     * Get chair by vote
+     * @param  int $vote_id
+     * @return \Illuminate\Http\Response
+     */
+    public function chairsByVote($voteId)
     {
-        $result = Random::where('vote_id', $vote_id)->get();
+        $result = Random::where('vote_id', $voteId)->get();
         return response()->json($result);
     }
-    public function delAll($vote_id)
+
+    /**
+     * Delete all chair by vote
+     * @param  int $voteId
+     * @return \Illuminate\Http\Response
+     */
+    public function delAll($voteId)
     {
-        $data = Random::where('vote_id', $vote_id)->delete();
-        return response()->json(null, 204);
+        $data = Random::where('vote_id', $voteId)->delete();
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
 }

@@ -127,9 +127,9 @@ class VoteDetailController extends Controller
      * @param  int  $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteAll($vote_id)
+    public function deleteAll($voteId)
     {
-        $del = $this->repository->delAll($vote_id);
+        $delete = $this->repository->delAll($voteId);
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }

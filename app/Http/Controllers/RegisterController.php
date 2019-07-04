@@ -114,8 +114,8 @@ class RegisterController extends Controller
      */
     public function checkRegistered(Request $request)
     {
-        $arr = $this->repository->checkRegister($request->all());
-        return $arr;
+        $array = $this->repository->checkRegister($request->all());
+        return $array;
     }
 
     /**
@@ -125,8 +125,8 @@ class RegisterController extends Controller
      */
     public function unRegister(Request $request)
     {
-        $un = $this->repository->delRegister($request->all());
-        return $un;
+        $unregister = $this->repository->delRegister($request->all());
+        return $unregister;
     }
 
     /**
@@ -136,8 +136,8 @@ class RegisterController extends Controller
      */
     public function guestRefuses(Request $request)
     {
-        $ac = $this->repository->guestRefuse($request->all());
-        return response()->json(['status' => $ac], Response::HTTP_OK);
+        $status = $this->repository->guestRefuse($request->all());
+        return response()->json(['status' => $status], Response::HTTP_OK);
     }
 
     /**
@@ -147,7 +147,7 @@ class RegisterController extends Controller
      */
     public function userAgree(Request $request)
     {
-        $data = $this->repository->agree($request->all());
-        return response()->json($data);
+        $result = $this->repository->agree($request->all());
+        return response()->json($result);
     }
 }
