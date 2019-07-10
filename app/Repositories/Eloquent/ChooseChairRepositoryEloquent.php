@@ -136,7 +136,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
             $check = true;
             return ['check' => $check, 'seats' => $choosed->seats];
         }
-
+      
         return ['check' => $check];
     }
     /**
@@ -150,7 +150,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         $delete = $this->model()::find($find->id);
         $delete->delete();
         $result = parent::create($attributes);
-
+      
         return $result;
     }
 

@@ -153,7 +153,7 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
     {
         $result = ['data' => ''];
         $statistical = Statistical::where(['vote_id' => $voteId, 'movie_selected' => Films::SELECTED])->first();
-
+  
         if (!empty($statistical)) {
             $film = Films::find($statistical->films_id);
             $vote = Vote::find($voteId);
@@ -188,7 +188,7 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
                 $cinema = Cinema::find($rom->cinema_id);
                 $diagram = Diagram::where('room_id', $rom->id)->get(['row_of_seats', 'chairs']);
                 $chair = Chair::where('vote_id', $voteId)->get(['chairs']);
-
+              
                 if (!empty($vote->infor_time)) {
                     $times = new Carbon($vote->infor_time);
                     $date = $times->toDateString();

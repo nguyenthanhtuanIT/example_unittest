@@ -140,5 +140,6 @@ class DiagramController extends Controller
     {
         $this->repository->delAll($roomId);
         return $this->success([], trans('messages.diagrams.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
+
     }
 }

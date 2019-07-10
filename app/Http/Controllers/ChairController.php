@@ -116,6 +116,7 @@ class ChairController extends Controller
     public function getDiagramChairByVote($voteId)
     {
         $diagram = $this->repository->diagramChairByVote($voteId);
+      
         return $this->success($diagram, trans('messages.chairs.success'));
     }
 
@@ -137,6 +138,7 @@ class ChairController extends Controller
      */
     public function deleteAll($voteId)
     {
+
         $this->repository->delAll($voteId);
         return $this->success([], trans('messages.chairs.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }

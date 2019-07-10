@@ -167,6 +167,7 @@ class ChooseChairController extends Controller
      */
     public function deleteAll($voteId)
     {
+
         $this->repository->delAll($voteId);
         return $this->success([], trans('messages.chooseChairs.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }

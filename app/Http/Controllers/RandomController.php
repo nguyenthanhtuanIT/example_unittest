@@ -115,6 +115,7 @@ class RandomController extends Controller
     public function getChairsByVote($voteId)
     {
         $result = $this->repository->chairsByVote($voteId);
+
         return $this->success(['data' => $result], trans('messages.randoms.success'));
     }
 
@@ -126,6 +127,7 @@ class RandomController extends Controller
     public function deleteAll($voteId)
     {
         $this->repository->delAll($voteId);
+      
         return $this->success([], trans('messages.randoms.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 }
