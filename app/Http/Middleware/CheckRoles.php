@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class CheckRoles
@@ -20,8 +21,7 @@ class CheckRoles
         if ($roles) {
             return $next($request);
         } else {
-            return response()->json('You do not have admin right', 401);
+            return response()->json('You do not have admin right', Response::HTTP_UNAUTHORIZED);
         }
-
     }
 }

@@ -3,8 +3,11 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\Chair;
+use App\Models\ChooseChair;
+use App\Models\Vote;
 use App\Presenters\ChairPresenter;
 use App\Repositories\Contracts\ChairRepository;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Response;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
@@ -43,74 +46,86 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
     {
         $this->pushCriteria(app(RequestCriteria::class));
     }
+
+    /**
+     * @param  int $vote_id
+     * @return \Illuminate\Http\Response
+     */
+    public function chairByVote($voteId)
+    {
+        return $this->model()::where('vote_id', $voteId);
+    }
+
+    /**
+     * custom create
+     * @param  array  $attributes
+     * @return \Illuminate\Http\Response
+     */
     public function create(array $attributes)
     {
-        if (isset($attributes['row_of_seats'])) {
-            $validate = $this->model()::where([
-                'row_of_seats' => $attributes['row_of_seats'],
-                'vote_id' => $attributes['vote_id'],
-            ])->count();
-            if ($validate > 0) {
-                return 'attributes aready exited';
-            } else {
-                $chairs = parent::create($attributes);
-                return $chairs;
-            }
-        }
-    }
-    public function diagramChairByVote(array $attributes)
-    {
-        $vote_id = $attributes['vote_id'];
-        $diagram = $this->model()::where('vote_id', $vote_id)->get();
-        return $diagram;
-    }
-    public function test(array $attributes)
-    {
-        $attr = $attributes['update_status_chair'];
-        $vote_id = $attributes['vote_id'];
-        $arr = explode(';', $attr);
-        $check = true;
-        //dd(count($arr));
-        for ($i = 0; $i < count($arr); $i++) {
-            $chill_arr = explode(',', $arr[$i]);
-            $chair = $this->model()::find($chill_arr[0]);
-            $status_chairs = explode(',', $chair->status_chairs);
-            if ($chair) {
-                for ($k = 0; $k < count($status_chairs); $k++) {
-                    if ($status_chairs[$k] == $chill_arr[$k + 1]) {
-                        $check = true;
-                    } else {
-                        if ($status_chairs[$k] == 'empty' && is_numeric($chill_arr[$k + 1])) {
-                            $check = true;
-                        } else {
-                            $check = false;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (!$check) {
-                break;
-            }
-        }
-        if ($check) {
-            for ($i = 0; $i < count($arr); $i++) {
-                $chill_arr = explode(',', $arr[$i]);
-                $chair = $this->model()::find($chill_arr[0]);
-                $status_chairs = explode(',', $chair->status_chairs);
-                if ($chair) {
-                    for ($k = 0; $k < count($status_chairs); $k++) {
-                        $status_chairs[$k] = $chill_arr[$k + 1];
-                    }
-                    $string = implode(',', $status_chairs);
-                    $chair_update = $chair->update(['status_chairs' => $string]);
-                }
-
-            }
-            return response('ok', 200);
+        $count = $this->chairByVote($attributes['vote_id'])->count();
+        if ($count) {
+            return response()->json('attributes aready exited', Response::HTTP_BAD_REQUEST);
         } else {
-            return response('error', 200);
+            $vote = Vote::find($attributes['vote_id']);
+            if ($vote->status_vote != 'booking_chair') {
+                return response()->json('status votes not combined',
+                    Response::HTTP_BAD_REQUEST);
+            }
         }
+        $chairs = parent::create($attributes);
+        return $chairs;
+    }
 
+    /**
+     * Get diagram chair by vote
+     * @param  int $vote_id
+     * @return  \Illuminate\Http\Response
+     */
+    public function diagramChairByVote($voteId)
+    {
+        $diagrams = $this->chairByVote($voteId)->get();
+        return $diagrams;
+    }
+
+    /**
+     * Update status chair
+     * @param  array  $attributes
+     * @return \Illuminate\Http\Response
+     */
+    public function updateChairs(array $attributes)
+    {
+        $voteId = $attributes['vote_id'];
+        $result = $arrayChooseChairs = $arrayChairs = array();
+        $chooseChairs = ChooseChair::where('vote_id', $voteId)->get();
+        $chairs = $this->chairByVote($voteId)->get();
+        foreach ($chairs as $val) {
+            $array = $val->chairs;
+            for ($i = 0; $i < count($array); $i++) {
+                $arrayChairs[] = $array[$i];
+            }
+        }
+        foreach ($chooseChairs as $val) {
+            $array = explode(',', $val->seats);
+            for ($i = 0; $i < count($array); $i++) {
+                $arrayChooseChairs[] = $array[$i];
+            }
+        }
+        $arrayDiff = array_diff($arrayChairs, $arrayChooseChairs);
+        foreach ($arrayDiff as $key => $value) {
+            $result[] = $value;
+        }
+        return response()->json($result);
+    }
+
+    /**
+     * Delete all chair by vote
+     * @param  int $voteId
+     * @return \Illuminate\Http\Response
+     */
+    public function delAll($voteId)
+    {
+        $this->chairByVote($voteId)->delete();
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }
