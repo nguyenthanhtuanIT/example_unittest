@@ -63,8 +63,8 @@ class DiagramController extends Controller
         if (is_null($diagram)) {
             return $this->error(trans('messages.errors.errorCreateDiagram'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
         }
-
-        return ['data' => $diagram];
+      
+        return $this->success($diagram, trans('messages.diagrams.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -126,9 +126,7 @@ class DiagramController extends Controller
     public function searchByRoom(Request $request)
     {
         $search = $this->repository->searchByRoomId($request->room_id);
-        $result = $this->repository->parserResult($search);
-
-        return $this->success($result, trans('messages.diagrams.success'));
+        return $this->success($search, trans('messages.diagrams.success'), ['isContainByDataString' => true]);
     }
 
     /**
@@ -140,6 +138,5 @@ class DiagramController extends Controller
     {
         $this->repository->delAll($roomId);
         return $this->success([], trans('messages.diagrams.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
-
     }
 }

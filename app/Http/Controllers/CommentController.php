@@ -110,6 +110,6 @@ class CommentController extends Controller
     public function getComments($blogId)
     {
         $result = $this->repository->commentsByBlog($blogId);
-        return $this->success($result->toArray(), trans('messages.comments.success'));
+        return $this->success($result, trans('messages.comments.success'), ['isContainByDataString' => true]);
     }
 }

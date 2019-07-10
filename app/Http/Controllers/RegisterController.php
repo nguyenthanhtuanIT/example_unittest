@@ -119,7 +119,7 @@ class RegisterController extends Controller
     public function checkRegistered(Request $request)
     {
         $checkRegister = $this->repository->checkRegister($request->all());
-        return $this->success(['data' => $checkRegister], trans('messages.registers.success'));
+        return $this->success($checkRegister, trans('messages.registers.success'));
     }
 
     /**
@@ -130,7 +130,7 @@ class RegisterController extends Controller
     public function unRegister(Request $request)
     {
         $unRegister = $this->repository->delRegister($request->all());
-        return $this->success(['data' => $unRegister], trans('messages.registers.success'));
+        return $this->success($unRegister, trans('messages.registers.success'));
     }
 
     /**
@@ -141,7 +141,7 @@ class RegisterController extends Controller
     public function guestRefuses(Request $request)
     {
         $status = $this->repository->guestRefuse($request->all());
-        return $this->success(['data' => $status], trans('messages.registers.success'));
+        return $this->success($status, trans('messages.registers.success'));
     }
 
     /**
@@ -153,6 +153,5 @@ class RegisterController extends Controller
     {
         $result = $this->repository->agree($request->all());
         return $this->success($result, trans('messages.registers.success'));
-
     }
 }

@@ -113,7 +113,7 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
         if ($diagram) {
             return $diagram;
         }
-      
+
         return ['status' => 'not room'];
     }
 

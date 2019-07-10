@@ -65,6 +65,7 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
         ])->count();
         $user = User::find($attributes['user_id']);
         $ticketNumber = $attributes['ticket_number'];
+      
         if ($count) {
             return $register;
         } else {
@@ -230,7 +231,7 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
     {
         $register = $this->getUserRegister($attributes['user_id'], $attributes['vote_id'])->first();
         $user = User::find($attributes['user_id']);
-      
+
         if (!empty($register->best_friend)) {
             $arrayFriends = explode(',', $register->best_friend);
             for ($i = 0; $i < count($arrayFriends); $i++) {

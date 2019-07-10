@@ -103,10 +103,9 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
                 }
             }
         }
-      
+
         return parent::delete($id);
     }
-  
     /**
      * Get film has vote max
      * @param  int $voteId

@@ -110,7 +110,7 @@ class BlogController extends Controller
     public function searchBlogByTitle(Request $request)
     {
         $result = $this->repository->searchBlog($request->key);
-        return $this->success($result->toArray(), trans('messages.blogs.success'));
+        return $this->success($result, trans('messages.blogs.success'), ['isContainByDataString' => true]);
     }
 
     /**
@@ -120,6 +120,6 @@ class BlogController extends Controller
     public function getBlog()
     {
         $lists = $this->repository->getAll();
-        return $this->success($lists->toArray(), trans('messages.blogs.success'));
+        return $this->success($lists, trans('messages.blogs.success'), ['isContainByDataString' => true]);
     }
 }

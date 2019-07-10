@@ -125,6 +125,6 @@ class FilmController extends Controller
     public function getFilmToRegister(Request $request)
     {
         $film = $this->repository->filmToRegister($request->vote_id);
-        return $this->success(['data' => $film], trans('messages.films.success'));
+        return $this->success($film, trans('messages.films.success'), ['isContainByDataString' => true]);
     }
 }

@@ -153,7 +153,7 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
     {
         $result = ['data' => ''];
         $statistical = Statistical::where(['vote_id' => $voteId, 'movie_selected' => Films::SELECTED])->first();
-  
+      
         if (!empty($statistical)) {
             $film = Films::find($statistical->films_id);
             $vote = Vote::find($voteId);
