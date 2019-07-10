@@ -7,8 +7,6 @@ use App\Models\ChooseChair;
 use App\Models\Vote;
 use App\Presenters\ChairPresenter;
 use App\Repositories\Contracts\ChairRepository;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Response;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
 
@@ -64,16 +62,18 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
     public function create(array $attributes)
     {
         $count = $this->chairByVote($attributes['vote_id'])->count();
+        $chairs = null;
+
         if ($count) {
-            return response()->json('attributes aready exited', Response::HTTP_BAD_REQUEST);
-        } else {
-            $vote = Vote::find($attributes['vote_id']);
-            if ($vote->status_vote != 'booking_chair') {
-                return response()->json('status votes not combined',
-                    Response::HTTP_BAD_REQUEST);
-            }
+            return $chairs;
+        }
+        $vote = Vote::find($attributes['vote_id']);
+
+        if ($vote->status_vote != 'booking_chair') {
+            return $chairs;
         }
         $chairs = parent::create($attributes);
+      
         return $chairs;
     }
 
@@ -96,7 +96,7 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
     public function updateChairs(array $attributes)
     {
         $voteId = $attributes['vote_id'];
-        $result = $arrayChooseChairs = $arrayChairs = array();
+        $result = $arrayChooseChairs = $arrayChairs = [];
         $chooseChairs = ChooseChair::where('vote_id', $voteId)->get();
         $chairs = $this->chairByVote($voteId)->get();
         foreach ($chairs as $val) {
@@ -115,7 +115,8 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
         foreach ($arrayDiff as $key => $value) {
             $result[] = $value;
         }
-        return response()->json($result);
+
+        return ['chairs' => $result];
     }
 
     /**
@@ -125,7 +126,6 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
      */
     public function delAll($voteId)
     {
-        $this->chairByVote($voteId)->delete();
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->chairByVote($voteId)->delete();
     }
 }

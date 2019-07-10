@@ -39,8 +39,8 @@ class RegisterController extends Controller
      */
     public function index()
     {
-        $register = $this->repository->all($colums = ['*']);
-        return response()->json($register, Response::HTTP_OK);
+        $registers = $this->repository->all($colums = ['*']);
+        return $this->success($registers, trans('messages.registers.getListSuccess'));
     }
 
     /**
@@ -53,7 +53,12 @@ class RegisterController extends Controller
     public function store(Request $request)
     {
         $register = $this->repository->create($request->all());
-        return response()->json($register, Response::HTTP_CREATED);
+
+        if (is_null($register)) {
+            return $this->error(trans('messages.errors.errorCreateRegister'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->success($register, trans('messages.registers.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -66,7 +71,7 @@ class RegisterController extends Controller
     public function show($id)
     {
         $register = $this->repository->find($id);
-        return response()->json($register);
+        return $this->success($register, trans('messages.registers.showSuccess'));
     }
 
     /**
@@ -79,9 +84,8 @@ class RegisterController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $register = $this->repository->skipPresenter()
-            ->update($request->all(), $id);
-        return response()->json($register->presenter(), Response::HTTP_OK);
+        $register = $this->repository->update($request->all(), $id);
+        return $this->success($register, trans('messages.registers.updateSuccess'));
     }
 
     /**
@@ -94,7 +98,7 @@ class RegisterController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.registers.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -102,9 +106,9 @@ class RegisterController extends Controller
      * @param int $vote_id
      * @return \Illuminate\Http\Response
      */
-    public function Export($vote_id)
+    public function Export($voteId)
     {
-        return Excel::download(new RegistersExport($vote_id), 'listregister.xlsx');
+        return Excel::download(new RegistersExport($voteId), 'listregister.xlsx');
     }
 
     /**
@@ -114,8 +118,8 @@ class RegisterController extends Controller
      */
     public function checkRegistered(Request $request)
     {
-        $array = $this->repository->checkRegister($request->all());
-        return $array;
+        $checkRegister = $this->repository->checkRegister($request->all());
+        return $this->success(['data' => $checkRegister], trans('messages.registers.success'));
     }
 
     /**
@@ -125,8 +129,8 @@ class RegisterController extends Controller
      */
     public function unRegister(Request $request)
     {
-        $unregister = $this->repository->delRegister($request->all());
-        return $unregister;
+        $unRegister = $this->repository->delRegister($request->all());
+        return $this->success(['data' => $unRegister], trans('messages.registers.success'));
     }
 
     /**
@@ -137,7 +141,7 @@ class RegisterController extends Controller
     public function guestRefuses(Request $request)
     {
         $status = $this->repository->guestRefuse($request->all());
-        return response()->json(['status' => $status], Response::HTTP_OK);
+        return $this->success(['data' => $status], trans('messages.registers.success'));
     }
 
     /**
@@ -148,6 +152,7 @@ class RegisterController extends Controller
     public function userAgree(Request $request)
     {
         $result = $this->repository->agree($request->all());
-        return response()->json($result);
+        return $this->success($result, trans('messages.registers.success'));
+
     }
 }

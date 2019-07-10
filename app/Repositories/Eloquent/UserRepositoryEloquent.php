@@ -87,6 +87,7 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
                 'object_type' => User::IMAGE_TYPE,
             ]);
         }
+
         return $this->find($id);
     }
 
@@ -97,8 +98,8 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
      */
     public function getListUser($voteId)
     {
-        $array = array();
-        $arrayRegister = array();
+        $array = [];
+        $arrayRegister = [];
         $registers = Register::where('vote_id', $voteId)->get();
         foreach ($registers as $value) {
             array_push($array, $value->user_id);
@@ -119,6 +120,7 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
         $arrayMerge = array_merge($array, $arrayRegister);
         $result = array_unique($arrayMerge);
         $users = User::whereNotIn('id', $result)->get(['id', 'avatar', 'full_name', 'email']);
-        return response()->json($users);
+
+        return $users;
     }
 }

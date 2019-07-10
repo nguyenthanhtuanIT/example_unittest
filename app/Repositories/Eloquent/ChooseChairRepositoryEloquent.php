@@ -9,7 +9,6 @@ use App\Models\Vote;
 use App\Presenters\ChooseChairPresenter;
 use App\Repositories\Contracts\ChooseChairRepository;
 use App\User;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
@@ -69,43 +68,29 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
      */
     public function create(array $attributes)
     {
-        $count = $this->getOfUserByVote($attributes['user_id'], $attributes['vote_id'])->get();
-        if ($count->count()) {
-            foreach ($count as $value) {
-                $chairs = $this->model()::whereNotIn('id', [$value->id])->where('vote_id', $attributes['vote_id'])->get();
-            }
-            $seat = explode(',', $attributes['seats']);
-            foreach ($chairs as $val) {
-                $chair = explode(',', $val->seats);
-                for ($i = 0; $i < count($chair); $i++) {
-                    for ($j = 0; $j < count($seat); $j++) {
-                        if ($chair[$i] == $seat[$j]) {
-                            return response()->json('seats not empty');
-                            break;
-                        }
-                    }
-                }
-            }
-            $delete = $this->model()::find($value->id);
-            $delete->delete();
-            $results = parent::create($attributes);
-            return $results;
+        $count = $this->getOfUserByVote($attributes['user_id'], $attributes['vote_id'])->first();
+        $result = null;
+        $seat = explode(',', $attributes['seats']);
+
+        if (!empty($count)) {
+            $chairs = $this->model()::whereNotIn('id', [$count->id])->where('vote_id', $attributes['vote_id'])->get();
+            $this->model()::find($count->id)->delete();
         } else {
             $chairs = $this->model()::where('vote_id', $attributes['vote_id'])->get();
-            $seat = explode(',', $attributes['seats']);
-            foreach ($chairs as $val) {
-                $chair = explode(',', $val->seats);
-                for ($i = 0; $i < count($chair); $i++) {
-                    for ($j = 0; $j < count($seat); $j++) {
-                        if ($chair[$i] == $seat[$j]) {
-                            return response()->json('seats not empty');
-                            break;
-                        }
+        }
+        foreach ($chairs as $val) {
+            $chair = explode(',', $val->seats);
+            for ($i = 0; $i < count($chair); $i++) {
+                for ($j = 0; $j < count($seat); $j++) {
+                    if ($chair[$i] == $seat[$j]) {
+                        return $result;
+                        break;
                     }
                 }
             }
         }
         $result = parent::create($attributes);
+
         return $result;
     }
 
@@ -118,7 +103,8 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     {
         $ticket = Register::where('user_id', Auth::user()->id)
             ->where('vote_id', $attributes['vote_id'])->get(['ticket_number']);
-        return response()->json($ticket[0]);
+
+        return $ticket[0];
     }
 
     /**
@@ -140,20 +126,19 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                 }
             }
         }
+
         if ($user == '') {
             $choosed = $this->getOfUserByVote($attributes['user_id'], $attributes['vote_id'])->first();
-
-            if (!$choosed) {
-                $choosed = $this->getOfUserByVote($user, $attributes['vote_id'])->first();
-            }
-            if ($choosed->count() != 0) {
-                $check = true;
-                return array('check' => $check, 'seats' => $choosed->seats);
-            }
+        } else {
+            $choosed = $this->getOfUserByVote($user, $attributes['vote_id'])->first();
         }
-        return array('check' => $check);
+        if ($choosed->count() != 0) {
+            $check = true;
+            return ['check' => $check, 'seats' => $choosed->seats];
+        }
+      
+        return ['check' => $check];
     }
-
     /**
      * User rechoose chairs
      * @param  array  $attributes
@@ -165,6 +150,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         $delete = $this->model()::find($find->id);
         $delete->delete();
         $result = parent::create($attributes);
+      
         return $result;
     }
 
@@ -176,20 +162,25 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     public function randChair(array $attributes)
     {
         $vote = Vote::find($attributes['vote_id']);
+        $result = null;
+
         if ($vote->status_vote != 'booking_chair') {
-            return response()->json('time is invalid', Response::HTTP_BAD_REQUEST);
+            return [
+                'data' => $result,
+            ];
         } else {
             $register = Register::where('vote_id', $vote->id)->get();
             $chairs = Chair::where('vote_id', $vote->id)->get();
             if (count($chairs) == 0) {
-                return response()->json('not data chairs', Response::HTTP_BAD_REQUEST);
+                return [
+                    'data' => $result,
+                ];
             }
-
-            $publish = $seats = $viewers = $array = $temp = $arrayName = $array_result = array();
+            $publish = $seats = $viewers = $array = $temp = $arrayName = $array_result = [];
             foreach ($register as $value) {
                 if ($value->ticket_number == 1) {
                     $name = User::find($value->user_id);
-                    $arrayName[] = array($name->full_name);
+                    $arrayName[] = $name->full_name;
                 } elseif ($value->ticket_number > 1) {
                     $findUser = User::find($value->user_id);
                     $array = array($findUser->full_name);
@@ -212,7 +203,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
             //seats
             foreach ($chairs as $value) {
                 $arrayChairs = $value->chairs;
-                $arraySeats = array();
+                $arraySeats = [];
                 for ($i = 0; $i < count($arrayChairs); $i++) {
                     $arraySeats[] = $arrayChairs[$i];
                 }
@@ -250,6 +241,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                 }
                 $seats = $array_result;
                 $result = $this->shuffle_seats($seats, $viewers, $vote->id);
+
                 return $result;
             }
         }
@@ -262,25 +254,25 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
      */
     public function delAll($voteId)
     {
-        $del = ChooseChair::where('vote_id', $voteId)->delete();
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return ChooseChair::where('vote_id', $voteId)->delete();
     }
 
     /**
      * random seats
      * @param  array  $seats
      * @param  array  $viewers
-     * @param  int $vote_id
+     * @param  int $voteId
      * @return \Illuminate\Http\Response
      */
-    public function shuffle_seats($seats = [], $viewers = [], $vote_id)
+    public function shuffle_seats($seats = [], $viewers = [], $voteId)
     {
         $seats = array_values($seats);
         $viewers = array_values($viewers);
+        $results = null;
+
         // seats or viewers list is empty
         if (empty($seats) || empty($viewers)) {
             return [
-                'status' => 'success',
                 'data' => [],
             ];
         }
@@ -288,7 +280,9 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         $original_seats = $original_viewers = [];
         foreach ($seats as $key => $seats_group) {
             if (!is_array($seats_group)) {
-                return response()->json('The data is invalid (seats)', Response::HTTP_BAD_REQUEST);
+                return [
+                    'data' => $results,
+                ];
             } elseif (!empty($seats_group)) {
                 $original_seats = array_merge($original_seats, $seats_group);
             } else {
@@ -297,16 +291,21 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         }
         foreach ($viewers as $key => $viewers_group) {
             if (!is_array($viewers_group)) {
-                return response()->json('The data is invalid (viewers)', Response::HTTP_BAD_REQUEST);
+                return [
+                    'data' => $results,
+                ];
             } elseif (!empty($viewers_group)) {
                 $original_viewers = array_merge($original_viewers, $viewers_group);
             } else {
                 unset($viewers[$key]);
             }
         }
+
         // number of viewers must smaller than number of seats
         if (count($original_viewers) > count($original_seats)) {
-            return response()->json('number of viewers must smaller than number of seats', Response::HTTP_BAD_REQUEST);
+            return [
+                'data' => $results,
+            ];
         }
         // prepare data: sort viewers and shuffle seats...
         shuffle($viewers);
@@ -335,13 +334,13 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
             }
         }
         // back to original order of seats
-        $results = [];
+
         foreach ($original_seats as $key => $seat) {
             $results[$seat] = $viewer_to_seat[$seat] ?? '';
         }
+
         return [
-            'vote_id' => $vote_id,
-            'status' => 'success',
+            'vote_id' => $voteId,
             'data' => $results,
         ];
     }
@@ -363,6 +362,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                         $slots_group_key => $slots_group_value,
                     ];
                 }
+
                 if (count($array1_group) <= $slots_group_value) {
                     // set to list
                     $positions[$slots_group_key][] = $array1_group;
@@ -380,6 +380,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                 }
             }
         }
+
         return $positions;
     }
 }

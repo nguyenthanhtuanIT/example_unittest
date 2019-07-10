@@ -53,10 +53,10 @@ class ImageController extends Controller
     {
         $item = $this->repository->skipPresenter()->find($id);
         $item->delete();
+        if (file_exists($item->filename)) {
+            Storage::delete('thumbnails/' . $item->filename);
+        }
 
-        Storage::delete($item->pathname);
-        Storage::delete('thumbnails/' . $item->filename);
-
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.images.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 }

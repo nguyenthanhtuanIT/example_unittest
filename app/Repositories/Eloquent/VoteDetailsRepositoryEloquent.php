@@ -6,7 +6,6 @@ use App\Models\VoteDetails;
 use App\Presenters\VoteDetailsPresenter;
 use App\Repositories\Contracts\VoteDetailsRepository;
 use App\Services\StatisticalService;
-use Illuminate\Http\Response;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
 
@@ -55,6 +54,7 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
 
         $VoteDetails = parent::create($attributes);
         StatisticalService::addRow($VoteDetails['data']['attributes']['film_id'], $VoteDetails['data']['attributes']['vote_id']);
+
         return $VoteDetails;
 
     }
@@ -68,8 +68,8 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
     {
         $votedetail = VoteDetails::find($id);
         StatisticalService::updateRow($votedetail->film_id, $votedetail->vote_id);
-        $VoteDetails = parent::delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+
+        return parent::delete($id);
     }
 
     /**
@@ -82,13 +82,15 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
         $useId = $attributes['user_id'];
         $voteId = $attributes['vote_id'];
         $votedetails = $this->model()::where(['user_id' => $useId, 'vote_id' => $voteId])->get();
+      
         if (count($votedetails) != 0) {
             foreach ($votedetails as $value) {
                 $lists[] = $value->film_id;
             }
-            return response()->json($lists);
+            return ['data' => $lists];
         }
-        return response()->json([]);
+
+        return ['data' => ''];
     }
 
     /**
@@ -103,8 +105,8 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
             'film_id' => $attributes['film_id'],
             'user_id' => $attributes['user_id'],
         ])->first();
-        $delete = $this->delete($votedetail->id);
-        return $delete;
+
+        return $this->delete($votedetail->id);
     }
 
     /**
@@ -114,7 +116,6 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
      */
     public function delAll($voteId)
     {
-        $delete = VoteDetails::where('vote_id', $voteId)->delete();
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return VoteDetails::where('vote_id', $voteId)->delete();
     }
 }

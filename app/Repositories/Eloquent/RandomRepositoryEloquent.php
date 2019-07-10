@@ -5,7 +5,6 @@ namespace App\Repositories\Eloquent;
 use App\Models\Random;
 use App\Presenters\RandomPresenter;
 use App\Repositories\Contracts\RandomRepository;
-use Illuminate\Http\Response;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
 
@@ -53,6 +52,7 @@ class RandomRepositoryEloquent extends BaseRepository implements RandomRepositor
     {
         $voteId = 0;
         $check = 0;
+        $result = null;
         $array = explode(';', $attributes['rand']);
         for ($i = 0; $i < count($array); $i++) {
             $convert = explode(',', $array[$i]);
@@ -61,33 +61,33 @@ class RandomRepositoryEloquent extends BaseRepository implements RandomRepositor
             }
         }
         $check = Random::where('vote_id', $voteId)->count();
+
         if ($check != 0) {
-            return response()->json('vote_id exited', Response::HTTP_BAD_REQUEST);
-        } else {
-            $array = explode(';', $attributes['rand']);
-            for ($i = 0; $i < count($array); $i++) {
-                $arrayChill = explode(',', $array[$i]);
-                $voteId = $arrayChill[0];
-                $random = new Random;
-                $random->vote_id = $arrayChill[0];
-                $random->seats = $arrayChill[1];
-                $random->viewers = $arrayChill[2];
-                $random->save();
-            }
-            $all = Random::where('vote_id', $voteId)->get();
-            return response()->json($all);
+            return $result;
         }
+        $array = explode(';', $attributes['rand']);
+        for ($i = 0; $i < count($array); $i++) {
+            $arrayChill = explode(',', $array[$i]);
+            $voteId = $arrayChill[0];
+            $random = new Random;
+            $random->vote_id = $arrayChill[0];
+            $random->seats = $arrayChill[1];
+            $random->viewers = $arrayChill[2];
+            $random->save();
+        }
+        $result = Random::where('vote_id', $voteId)->get();
+
+        return ['result' => $result];
     }
 
     /**
      * Get chair by vote
-     * @param  int $vote_id
+     * @param  int $voteId
      * @return \Illuminate\Http\Response
      */
     public function chairsByVote($voteId)
     {
-        $result = Random::where('vote_id', $voteId)->get();
-        return response()->json($result);
+        return Random::where('vote_id', $voteId)->get();
     }
 
     /**
@@ -97,8 +97,7 @@ class RandomRepositoryEloquent extends BaseRepository implements RandomRepositor
      */
     public function delAll($voteId)
     {
-        $data = Random::where('vote_id', $voteId)->delete();
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return Random::where('vote_id', $voteId)->delete();
     }
 
 }

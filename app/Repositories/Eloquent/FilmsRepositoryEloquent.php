@@ -59,7 +59,8 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
         $link = Storage::url($name);
         $attributes['img'] = $link;
         $film = parent::create($attributes);
-        return response()->json($film);
+
+        return $film;
     }
 
     /**
@@ -70,19 +71,18 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
      */
     public function update(array $attributes, $id)
     {
-
         if (isset($attributes['img'])) {
             $name = $attributes['img']->store('photos');
             $link = Storage::url($name);
             $attributes['img'] = $link;
-
             $img = Films::find($id);
             $imgOld = $img->img;
             $nameImg = explode('/', $imgOld);
             Storage::delete('/photos/' . $nameImg[5]);
         }
         $film = parent::update($attributes, $id);
-        return response()->json($film);
+
+        return $film;
     }
 
     /**
@@ -103,9 +103,10 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
                 }
             }
         }
-        $film = parent::delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+      
+        return parent::delete($id);
     }
+  
     /**
      * Get film has vote max
      * @param  int $voteId
@@ -124,6 +125,7 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
     public function getlistFilmToVote()
     {
         $vote = Vote::where('status_vote', 'voting')->first();
+
         if (!empty($vote)) {
             $convert = implode(',', $vote->list_films);
             $lists = explode(',', $convert);
@@ -131,10 +133,10 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
                 $film = Films::find($lists[$i]);
                 $arrayFilms[] = $film;
             }
-            return response()->json($arrayFilms);
-        } else {
-            return response()->json(['status' => 'not data']);
+            return $arrayFilms;
         }
+
+        return ['status' => 'not data'];
     }
 
     /**
@@ -145,6 +147,7 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
     public function filmToRegister($voteId)
     {
         $check = Statistical::where(['vote_id' => $voteId, 'movie_selected' => Films::SELECTED])->get();
+      
         if ($check->count() != 1) {
             $max = Statistical::where('vote_id', $voteId)->max('amount_votes');
             $statistical = $this->getVoteMax($voteId, $max)->get();
@@ -155,12 +158,11 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
                     return $film;
                 }
             } else {
-                $rand = $this->getVoteMax($voteId, $max)->get()->random();
-                $films = Films::find($rand->films_id);
+                $random = $this->getVoteMax($voteId, $max)->get()->random();
+                $films = Films::find($random->films_id);
                 Statistical::where(['vote_id' => $voteId, 'films_id' => $films->id])->update(['movie_selected' => Films::SELECTED]);
                 return $films;
             }
-
         } else {
             foreach ($check as $value) {
                 return $film = Films::find($value->films_id);

@@ -40,8 +40,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = $this->repository->all($columns = ['*']);
-        return response()->json($user);
+        $users = $this->repository->all($columns = ['*']);
+        return $this->success($user, trans('messages.users.getListSuccess'));
     }
 
     /**
@@ -52,7 +52,7 @@ class UserController extends Controller
     public function me(Request $request)
     {
         $user = $this->repository->find(auth()->user()->id);
-        return response()->json($user);
+        return $this->success($user, trans('messages.users.success'));
     }
 
     /**
@@ -64,8 +64,8 @@ class UserController extends Controller
      */
     public function store(UserCreateRequest $request)
     {
-        $user = $this->repository->skipPresenter()->create($request->all());
-        return $this->presenterPostJson($user);
+        $user = $this->repository->create($request->all());
+        return $this->success($user, trans('messages.users.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -78,7 +78,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = $this->repository->find($id);
-        return response()->json($user);
+        return $this->success($user, trans('messages.users.showSuccess'));
     }
 
     /**
@@ -92,7 +92,7 @@ class UserController extends Controller
     public function update(UserUpdateRequest $request, $id)
     {
         $user = $this->repository->update($request->all(), $id);
-        return response()->json($user, Response::HTTP_CREATED);
+        return $this->success($user, trans('messages.users.updateSuccess'));
 
     }
 
@@ -106,7 +106,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.users.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -130,6 +130,6 @@ class UserController extends Controller
     public function listUsers(Request $request)
     {
         $user = $this->repository->getListUser($request->vote_id);
-        return response()->json($user);
+        return $this->success($user, trans('messages.users.success'));
     }
 }

@@ -63,6 +63,7 @@ class CommentRepositoryEloquent extends BaseRepository implements CommentReposit
                 'users',
                 'users.id', '=', 'comments.user_id'
             )->orderBy('id', 'DESC')->where('comments.blog_id', $blogId)->paginate(8, $columns = ['*']);
+      
         return $comments;
     }
 }

@@ -8,7 +8,6 @@ use App\Models\Statistical;
 use App\Models\Vote;
 use App\Presenters\StatisticalPresenter;
 use App\Repositories\Contracts\StatisticalRepository;
-use Illuminate\Http\Response;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
 
@@ -58,8 +57,8 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
             }
 
         }
-        $result = parent::update($attributes, $id);
-        return $result;
+
+        return parent::update($attributes, $id);
     }
 
     /**
@@ -75,9 +74,9 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
      *
      * @return \Illuminate\Http\Response
      */
-    public function inforAll()
+    public function infoAll()
     {
-        $result = array();
+        $result = [];
         $voteId = Statistical::get()->unique('vote_id');
         foreach ($voteId as $value) {
             $vote = Vote::find($value->vote_id);
@@ -86,16 +85,20 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
             if ($statistical) {
                 $film = Films::find($statistical->films_id);
                 $ticketOutsite = Register::where('vote_id', $value->vote_id)->sum('ticket_outsite');
-                $result[] = array('name_vote' => $vote->name_vote,
+
+                $result = [
+                    'name_vote' => $vote->name_vote,
                     'films' => $film->name_film,
                     'amount_vote' => $statistical->amount_votes,
                     'amount_register' => $statistical->amount_registers,
                     'total_ticket' => $vote->total_ticket,
-                    'ticket_outsite' => $ticketOutsite);
+                    'ticket_outsite' => $ticketOutsite,
+                ];
             } else {
-                return response()->json(['status' => 'film selected not data']);
+                return ['status' => 'film selected not data'];
             }
         }
+      
         return $result;
     }
 
@@ -104,30 +107,37 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
      * @param  int $voteId
      * @return  \Illuminate\Http\Response
      */
-    public function inforByVote($voteId)
+    public function infoByVote($voteId)
     {
         $vote = Vote::find($voteId);
-
         $statistical = Statistical::where(['vote_id' => $voteId,
             'movie_selected' => Films::SELECTED])->first();
+
         if ($statistical) {
             $film = Films::find($statistical->films_id);
-            $ticket_outsite = Register::where('vote_id', $voteId)->sum('ticket_outsite');
-            return response()->json(['name_vote' => $vote->name_vote,
+            $ticketOutsite = Register::where('vote_id', $voteId)->sum('ticket_outsite');
+            return [
+                'name_vote' => $vote->name_vote,
                 'films' => $film->name_film,
                 'amount_vote' => $statistical->amount_votes,
                 'amount_register' => $statistical->amount_registers,
                 'total_ticket' => $vote->total_ticket,
-                'ticket_outsite' => $ticket_outsite]);
-        } else {
-            return response()->json(['status' => 'film selected not data']);
+                'ticket_outsite' => $ticketOutsite,
+            ];
         }
+        return ['status' => 'film selected not data'];
     }
 
+    /**
+     * Amount vote
+     * @param  int $voteId
+     * @return  \Illuminate\Http\Response
+     */
     public function amountVoteOfFilm($voteId)
     {
-        $infor = array();
+        $info = [];
         $vote = Vote::find($voteId);
+  
         if ($vote) {
             $statisticals = Statistical::where('vote_id', $voteId)->get();
             $films = Films::all();
@@ -135,22 +145,26 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
                 foreach ($films as $value) {
                     if ($statistical->films_id != null) {
                         if ($statistical->films_id == $value->id) {
-                            $infor[] = array($value->name_film, $statistical->amount_votes);
+                            $info[] = array($value->name_film, $statistical->amount_votes);
                         }
                     } else {
-                        return $result = array('status' => 'not data');
+                        return $result = ['status' => 'not data'];
                     }
                 }
             }
-            return $result = array('name_vote' => $vote->name_vote, 'infor' => $infor);
-        } else {
-            return $result = array('status' => 'not data');
+            return $result = ['name_vote' => $vote->name_vote, 'info' => $info];
         }
+
+        return $result = ['status' => 'not data'];
     }
 
+    /**
+     * Delete all by vote
+     * @param  int $voteId
+     * @return  \Illuminate\Http\Response
+     */
     public function delAll($voteId)
     {
-        $del = Statistical::where('vote_id', $voteId)->delete();
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return Statistical::where('vote_id', $voteId)->delete();
     }
 }

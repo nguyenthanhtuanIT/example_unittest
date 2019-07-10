@@ -55,6 +55,7 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
         $link = Storage::url($name);
         $attributes['img'] = $link;
         $blog = parent::create($attributes);
+
         return $blog;
     }
 
@@ -76,6 +77,7 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
             Storage::delete('/photos/' . $nameImg[5]);
         }
         $blog = parent::update($attributes, $id);
+
         return $blog;
     }
 

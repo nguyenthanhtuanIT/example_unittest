@@ -39,12 +39,14 @@ class RandomController extends Controller
     {
         $limit = request()->get('limit', null);
         $includes = request()->get('include', '');
+
         if ($includes) {
             $this->repository->with(explode(',', $includes));
         }
         $this->repository->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
         $randoms = $this->repository->paginate($limit, $columns = ['*']);
-        return response()->json($randoms);
+
+        return $this->success($randoms, trans('messages.randoms.getListSuccess'));
     }
 
     /**
@@ -56,8 +58,13 @@ class RandomController extends Controller
      */
     public function store(RandomCreateRequest $request)
     {
-        $random = $this->repository->skipPresenter()->create($request->all());
-        return response()->json($random);
+        $random = $this->repository->create($request->all());
+
+        if (is_null($random['result'])) {
+            return $this->error(trans('messages.errors.errorCreateRandom'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->success($random, trans('messages.randoms.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
     /**
@@ -70,7 +77,7 @@ class RandomController extends Controller
     public function show($id)
     {
         $random = $this->repository->find($id);
-        return response()->json($random);
+        return $this->success($random, trans('messages.randoms.showSuccess'));
     }
 
     /**
@@ -83,8 +90,8 @@ class RandomController extends Controller
      */
     public function update(RandomUpdateRequest $request, $id)
     {
-        $random = $this->repository->skipPresenter()->update($request->all(), $id);
-        return response()->json($random->presenter(), Response::HTTP_OK);
+        $random = $this->repository->update($request->all(), $id);
+        return $this->success($random, trans('messages.randoms.updateSuccess'));
     }
 
     /**
@@ -97,8 +104,7 @@ class RandomController extends Controller
     public function destroy($id)
     {
         $this->repository->delete($id);
-
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->success([], trans('messages.randoms.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
     /**
@@ -109,7 +115,8 @@ class RandomController extends Controller
     public function getChairsByVote($voteId)
     {
         $result = $this->repository->chairsByVote($voteId);
-        return response()->json($result);
+
+        return $this->success(['data' => $result], trans('messages.randoms.success'));
     }
 
     /**
@@ -119,7 +126,8 @@ class RandomController extends Controller
      */
     public function deleteAll($voteId)
     {
-        $result = $this->repository->delAll($voteId);
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        $this->repository->delAll($voteId);
+      
+        return $this->success([], trans('messages.randoms.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 }

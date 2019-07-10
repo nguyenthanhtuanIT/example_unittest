@@ -6,7 +6,6 @@ use App\Models\Diagram;
 use App\Models\Vote;
 use App\Presenters\DiagramPresenter;
 use App\Repositories\Contracts\DiagramRepository;
-use Illuminate\Http\Response;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
 
@@ -51,7 +50,7 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
      */
     public function custom()
     {
-        return Diagram::get();
+        return Diagram::all();
     }
 
     /**
@@ -65,12 +64,14 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
             'row_of_seats' => $attributes['row_of_seats'],
             'room_id' => $attributes['room_id'],
         ])->count();
+
         if ($diagram) {
-            return response()->json('row_of_seats exited', Response::HTTP_BAD_REQUEST);
-        } else {
-            $diagrams = parent::create($attributes);
-            return response()->json([$diagrams]);
+            $diagram = null;
+            return $diagram;
         }
+        $diagrams = parent::create($attributes);
+
+        return $diagrams;
     }
 
 /**
@@ -91,11 +92,13 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
     public function getDiagramChairByVote($voteId)
     {
         $vote = Vote::find($voteId);
+
         if ($vote->room_id != 0) {
             $diagram = $this->getDiagramByRoom($vote->room_id)->get();
-            return response()->json($diagram);
+            return $diagram;
         }
-        return response()->json(['status' => 'not room']);
+
+        return ['status' => 'not room'];
     }
 
     /**
@@ -106,11 +109,12 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
     public function searchByRoomId($roomId)
     {
         $diagram = $this->getDiagramByRoom($roomId)->get();
+
         if ($diagram) {
             return $diagram;
         }
-        return response()->json('not room', Response::HTTP_BAD_REQUEST);
-
+      
+        return ['status' => 'not room'];
     }
 
     /**
@@ -120,7 +124,6 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
      */
     public function delAll($roomId)
     {
-        $data = $this->getDiagramByRoom($roomId)->delete();
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->getDiagramByRoom($roomId)->delete();
     }
 }

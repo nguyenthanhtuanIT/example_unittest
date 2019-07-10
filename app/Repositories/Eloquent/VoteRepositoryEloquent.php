@@ -53,6 +53,12 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
     {
         $this->pushCriteria(app(RequestCriteria::class));
     }
+
+    /**
+     * Search vote by title
+     * @param  string $title
+     * @return \Illuminate\Http\Response
+     */
     public function search($title)
     {
         $result = $this->model()::where('name_vote', 'like', '%' . $title . '%')->get();
@@ -62,7 +68,7 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
     /**
      * Custom create
      * @param  array  $attributes
-     * @return \use Illuminate\Http\Response;
+     * @return \Illuminate\Http\Response
      */
     public function create(array $attributes)
     {
@@ -82,8 +88,8 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
 
     /**
      * Custom update
-     * @param  array  $attributes [description]
-     * @param  int $id         [description]
+     * @param  array  $attributes
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(array $attributes, $id)
@@ -98,6 +104,7 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
             Storage::delete('/photos/' . $nameImg[4]);
         }
         $vote = parent::update($attributes, $id);
+
         return $vote;
     }
 
@@ -116,24 +123,25 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
                 $update = Vote::where('id', $vote->id)->update(['status_vote' => 'registing']);
             } elseif ($vote->time_booking_chair <= $date && $date < $vote->time_end && $vote->status_vote != 'booking_chair') {
                 $update = Vote::where('id', $vote->id)->update(['status_vote' => 'booking_chair']);
+
                 if ($vote->room_id == 0 || $chair->count() == 0) {
-                    return response()->json(['status' => 'buying a chair']);
+                    return ['status' => 'buying a chair'];
                 }
             } elseif ($date >= $vote->time_end && $vote->status_vote != 'end') {
                 $update = Vote::where('id', $vote->id)->update(['status_vote' => 'end']);
             }
-            return response()->json([
+            return [
                 'id' => $vote->id,
                 'background' => $vote->background,
                 'status' => $vote->status_vote,
                 'time_voting' => $vote->time_voting,
                 'time_registing' => $vote->time_registing,
                 'time_booking_chair' => $vote->time_booking_chair,
-                'time_end' => $vote->time_end]);
+                'time_end' => $vote->time_end,
+            ];
 
-        } else {
-            return response()->json(['status' => 'not votes']);
         }
+        return ['status' => 'not votes'];
     }
 
     /**
@@ -141,48 +149,51 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
      * @param  int $voteId
      * @return \Illuminate\Http\Response
      */
-    public function infor($voteId)
+    public function info($voteId)
     {
-        $result = array('data' => '');
+        $result = ['data' => ''];
         $statistical = Statistical::where(['vote_id' => $voteId, 'movie_selected' => Films::SELECTED])->first();
+  
         if (!empty($statistical)) {
             $film = Films::find($statistical->films_id);
             $vote = Vote::find($voteId);
             $rom = Room::find($vote->room_id);
             $chair = Chair::where('vote_id', $voteId)->get(['chairs']);
+
             if (empty($rom)) {
                 if (!empty($vote->infor_time)) {
                     $times = new Carbon($vote->infor_time);
                     $date = $times->toDateString();
                     $time = $times->toTimeString();
-                    $result = array(
+                    $result = [
                         'poter' => $film->img,
                         'name_film' => $film->name_film,
                         'amount_vote' => $statistical->amount_votes,
                         'amount_registers' => $statistical->amount_registers,
                         'chairs' => $chair,
                         'date' => $date,
-                        'time' => $time);
-                    return response()->json($result);
+                        'time' => $time,
+                    ];
                 } else {
-                    $result = array(
+                    $result = [
                         'poter' => $film->img,
                         'name_film' => $film->name_film,
                         'amount_vote' => $statistical->amount_votes,
                         'amount_registers' => $statistical->amount_registers,
                         'chairs' => $chair,
-                        'time' => $vote->infor_time);
+                        'time' => $vote->infor_time,
+                    ];
                 }
-                return response()->json($result);
             } else {
                 $cinema = Cinema::find($rom->cinema_id);
                 $diagram = Diagram::where('room_id', $rom->id)->get(['row_of_seats', 'chairs']);
                 $chair = Chair::where('vote_id', $voteId)->get(['chairs']);
+              
                 if (!empty($vote->infor_time)) {
                     $times = new Carbon($vote->infor_time);
                     $date = $times->toDateString();
                     $time = $times->toTimeString();
-                    $result = array(
+                    $result = [
                         'poter' => $film->img,
                         'name_film' => $film->name_film,
                         'amount_vote' => $statistical->amount_votes,
@@ -194,10 +205,10 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
                         'diagram' => $diagram,
                         'chairs' => $chair,
                         'date' => $date,
-                        'time' => $time);
-                    return response()->json($result);
+                        'time' => $time,
+                    ];
                 } else {
-                    $result = array(
+                    $result = [
                         'poter' => $film->img,
                         'name_film' => $film->name_film,
                         'amount_vote' => $statistical->amount_votes,
@@ -208,12 +219,14 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
                         'room_id' => $rom->id,
                         'diagram' => $diagram,
                         'chairs' => $chair,
-                        'time' => $vote->infor_time);
+                        'time' => $vote->infor_time,
+                    ];
                 }
-                return response()->json($result);
             }
         } else {
-            return response()->json(null);
+            return ['data' => null];
         }
+
+        return $result;
     }
 }
