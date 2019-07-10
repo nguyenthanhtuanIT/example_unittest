@@ -118,7 +118,6 @@ class RegisterController extends Controller
      */
     public function checkRegistered(Request $request)
     {
-
         $checkRegister = $this->repository->checkRegister($request->all());
         return $this->success($checkRegister, trans('messages.registers.success'));
     }

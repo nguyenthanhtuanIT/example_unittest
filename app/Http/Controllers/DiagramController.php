@@ -63,7 +63,7 @@ class DiagramController extends Controller
         if (is_null($diagram)) {
             return $this->error(trans('messages.errors.errorCreateDiagram'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
         }
-
+      
         return $this->success($diagram, trans('messages.diagrams.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 

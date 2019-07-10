@@ -65,7 +65,7 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
         ])->count();
         $user = User::find($attributes['user_id']);
         $ticketNumber = $attributes['ticket_number'];
-
+      
         if ($count) {
             return $register;
         } else {
@@ -273,7 +273,7 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
         }
         $user = User::find($userId);
         Mail::to($user->email)->queue(new MailFeedback());
-
+      
         return $result = 'success';
     }
 

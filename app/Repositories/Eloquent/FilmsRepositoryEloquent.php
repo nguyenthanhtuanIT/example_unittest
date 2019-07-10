@@ -7,6 +7,7 @@ use App\Models\Statistical;
 use App\Models\Vote;
 use App\Presenters\FilmsPresenter;
 use App\Repositories\Contracts\filmsRepository;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
@@ -102,6 +103,7 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
                 }
             }
         }
+
         return parent::delete($id);
     }
     /**
@@ -144,7 +146,7 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
     public function filmToRegister($voteId)
     {
         $check = Statistical::where(['vote_id' => $voteId, 'movie_selected' => Films::SELECTED])->get();
-
+      
         if ($check->count() != 1) {
             $max = Statistical::where('vote_id', $voteId)->max('amount_votes');
             $statistical = $this->getVoteMax($voteId, $max)->get();

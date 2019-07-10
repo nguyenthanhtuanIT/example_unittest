@@ -37,7 +37,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::resource('comments', 'CommentController')->only('store', 'update', 'destroy');
     Route::post('search_blog', 'BlogController@searchBlogByTitle');
     Route::post('agree', 'RegisterController@userAgree');
-
+  
     // Route::group(['prefix' => 'admin', 'middleware' => 'checkroles'], function () {
     Route::resource('users', 'UserController');
     Route::resource('votes', 'VoteController');
