@@ -120,7 +120,7 @@ class VoteController extends Controller
         }
 
         if (!$vote) {
-            return $this->success($result, trans('messages.votes.buyChairs'), ['isContainByDataString' => true]);
+            return $this->success($vote, trans('messages.votes.buyChairs'), ['isContainByDataString' => true]);
         }
 
         return $this->success($vote, trans('messages.votes.success'), ['isContainByDataString' => true]);
@@ -136,7 +136,7 @@ class VoteController extends Controller
         $info = $this->repository->info($request->vote_id);
 
         if (is_null($info)) {
-            return $this->success($vote, trans('messages.votes.dataEmpty'), ['isContainByDataString' => true]);
+            return $this->success($info, trans('messages.votes.dataEmpty'), ['isContainByDataString' => true]);
         }
 
         return $this->success($info, trans('messages.votes.success'), ['isContainByDataString' => true]);
