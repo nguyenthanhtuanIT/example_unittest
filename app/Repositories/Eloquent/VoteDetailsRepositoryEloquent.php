@@ -5,7 +5,7 @@ namespace App\Repositories\Eloquent;
 use App\Models\VoteDetails;
 use App\Presenters\VoteDetailsPresenter;
 use App\Repositories\Contracts\VoteDetailsRepository;
-use App\Services\VoteService;
+use App\Services\StatisticalService;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
 
@@ -44,26 +44,80 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
         $this->pushCriteria(app(RequestCriteria::class));
     }
 
+    /**
+     * Custom create
+     * @param  array  $attributes
+     * @return  \Illuminate\Http\Response
+     */
     public function create(array $attributes)
     {
+
         $VoteDetails = parent::create($attributes);
-        VoteService::add($VoteDetails['data']['attributes']['film_id']);
+        StatisticalService::addRow($VoteDetails['data']['attributes']['film_id'], $VoteDetails['data']['attributes']['vote_id']);
+
         return $VoteDetails;
+
     }
+
+    /**
+     * Custom delete
+     * @param  int $id
+     * @return  Illuminate\Http\Response;
+     */
+    public function delete($id)
+    {
+        $votedetail = VoteDetails::find($id);
+        StatisticalService::updateRow($votedetail->film_id, $votedetail->vote_id);
+
+        return parent::delete($id);
+
+    }
+
+    /**
+     * Check User voted
+     * @param  array  $attributes
+     * @return Illuminate\Http\Response
+     */
     public function checkVotes(array $attributes)
     {
-        $data = $this->model()::where('user_id', $attributes['user_id'])->where('vote_id', $attributes['vote_id'])->first();
-        $check = 'false';
-        if ($data) {
-            $film_id = $data->film_id;
-            $check = 'true';
-            $result[] = array('check' => $check,
-                'film_id' => $film_id);
-        } else {
-            $result[] = array('check' => $check);
+        $useId = $attributes['user_id'];
+        $voteId = $attributes['vote_id'];
+        $lists = [];
+        $votedetails = $this->model()::where(['user_id' => $useId, 'vote_id' => $voteId])->get();
+
+        if (count($votedetails) != 0) {
+            foreach ($votedetails as $value) {
+                $lists[] = $value->film_id;
+            }
+            return $lists;
         }
 
-        return $result;
+        return $lists;
     }
 
+    /**
+     * Delete vote
+     * @param  array  $attributes
+     * @return Illuminate\Http\Response
+     */
+    public function delVote(array $attributes)
+    {
+        $votedetail = VoteDetails::where([
+            'vote_id' => $attributes['vote_id'],
+            'film_id' => $attributes['film_id'],
+            'user_id' => $attributes['user_id'],
+        ])->first();
+
+        return $this->delete($votedetail->id);
+    }
+
+    /**
+     * Delete votedetail by vote
+     * @param  array  $attributes
+     * @return Illuminate\Http\Response
+     */
+    public function delAll($voteId)
+    {
+        return VoteDetails::where('vote_id', $voteId)->delete();
+    }
 }

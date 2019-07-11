@@ -2,11 +2,13 @@
 
 namespace App\Repositories\Eloquent;
 
-use Prettus\Repository\Eloquent\BaseRepository;
-use Prettus\Repository\Criteria\RequestCriteria;
-use App\Repositories\Contracts\BlogRepository;
-use App\Presenters\BlogPresenter;
 use App\Models\Blog;
+use App\Presenters\BlogPresenter;
+use App\Repositories\Contracts\BlogRepository;
+use App\Services\UploadService;
+use Illuminate\Support\Facades\Storage;
+use Prettus\Repository\Criteria\RequestCriteria;
+use Prettus\Repository\Eloquent\BaseRepository;
 
 /**
  * Class BlogRepositoryEloquent.
@@ -42,5 +44,67 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
     {
         $this->pushCriteria(app(RequestCriteria::class));
     }
-    
+
+    /**
+     * Custom created add image
+     * @param  array  $attributes
+     * @return \Illuminate\Http\Response
+     */
+    public function create(array $attributes)
+    {
+        $name = $attributes['img']->store('photos');
+        $link = Storage::url($name);
+        $attributes['img'] = $link;
+        $blog = parent::create($attributes);
+
+        return $blog;
+    }
+
+    /**
+     * Custom update
+     * @param  array  $attributes
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(array $attributes, $id)
+    {
+        if (isset($attributes['img'])) {
+            $name = $attributes['img']->store('photos');
+            $link = Storage::url($name);
+            $attributes['img'] = $link;
+            $img = Blog::find($id);
+            $imgOld = $img->img;
+            $nameImg = explode('/', $imgOld);
+            $url = "/photos/$nameImg[5]";
+
+            if (UploadService::checkFileExist($url)) {
+                Storage::delete('/photos/' . $nameImg[5]);
+            }
+        }
+        $blog = parent::update($attributes, $id);
+
+        return $blog;
+    }
+
+    /**
+     * Search blog by name
+     * @param  string $key
+     * @return \Illuminate\Http\Response
+     */
+    public function searchBlog($key)
+    {
+        $blogs = Blog::where('name_blog', 'LIKE', "%{$key}%")
+            ->get();
+        return $blogs;
+    }
+
+    /**
+     * Get all blog sort by id desc
+     * @return \Illuminate\Http\Response
+     */
+    public function getAll()
+    {
+        $blogs = Blog::orderBy('id', 'DESC')->paginate(8);
+        return $blogs;
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Vote;
+
 /**
  * Class Chair.
  *
@@ -14,12 +16,26 @@ class Chair extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['vote_id', 'row_of_seats', 'amount_chairs', 'status_chairs'];
+    protected $fillable = ['vote_id', 'amount_chairs', 'chairs'];
     protected $hidden = [];
-    public function getchair()
+
+    /**
+     * Custom chair attributes
+     * @param  string $value
+     * @return array
+     */
+    public function getChairsAttribute($value)
     {
-        $data[] = array();
-        $data = explode(',', $this->status_chairs);
-        return $data;
+        return explode(',', $value);
+    }
+
+    /**
+     * Get name of vote
+     * @return string
+     */
+    public function getVote()
+    {
+        $vote = Vote::find($this->vote_id);
+        return $vote->name_vote;
     }
 }

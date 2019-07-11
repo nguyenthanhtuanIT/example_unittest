@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\TypeCinema;
-use App\Models\Vote;
-
 /**
  * Class Films.
  *
@@ -12,27 +9,22 @@ use App\Models\Vote;
  */
 class Films extends BaseModel
 {
+    const SELECTED = 1;
+    const NOTSELECT = 0;
+    const PRICE = 'đ';
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $fillable = ['name_film', 'img', 'projection_date', 'projection_time', 'type_cinema_id', 'cinema_id', 'vote_id',
-        'language', 'age_limit', 'detail', 'trailer_url', 'price_film', 'choose', 'curency', 'vote_number', 'register_number'];
+    protected $fillable = ['name_film', 'img', 'projection_date', 'projection_time', 'language', 'age_limit', 'detail', 'trailer_url', 'price_film', 'curency', 'movies_type'];
 
-    public function getTypeFilms()
+    /**
+     * Custom attribute moviestype
+     * @return string
+     */
+    public function getMoviesTypeAttribute($value)
     {
-        $type = TypeCinema::where('id', $this->type_cinema_id)
-            ->value('name_type_cinema');
-        return $type;
-    }
-    public function getStatusVote()
-    {
-        $status = Vote::where('id', $this->vote_id)->value('status_vote');
-        return $status;
-    }
-    public function votes()
-    {
-        return $this->hasOne(\App\Models\Vote::class, 'vote_id');
+        return explode(',', $value);
     }
 }
