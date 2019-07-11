@@ -133,7 +133,7 @@ class DiagramController extends Controller
         $search = $this->repository->searchByRoomId($request->room_id);
 
         if (is_null($search)) {
-            return $this->success($result, trans('messages.diagrams.dataEmpty'), ['isContainByDataString' => true]);
+            return $this->success($search, trans('messages.diagrams.dataEmpty'), ['isContainByDataString' => true]);
         }
 
         return $this->success($search, trans('messages.diagrams.success'), ['isContainByDataString' => true]);

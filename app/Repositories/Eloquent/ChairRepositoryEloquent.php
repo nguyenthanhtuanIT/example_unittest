@@ -99,7 +99,6 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
         $result = $arrayChooseChairs = $arrayChairs = [];
         $chooseChairs = ChooseChair::where('vote_id', $voteId)->get();
         $chairs = $this->chairByVote($voteId)->get();
-
         foreach ($chairs as $val) {
             $array = $val->chairs;
             for ($i = 0; $i < count($array); $i++) {
@@ -114,7 +113,6 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
             }
         }
         $arrayDiff = array_diff($arrayChairs, $arrayChooseChairs);
-
         foreach ($arrayDiff as $key => $value) {
             $result[] = $value;
         }

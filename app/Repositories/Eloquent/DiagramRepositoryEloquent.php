@@ -90,6 +90,7 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
  */
     public function getDiagramChairByVote($voteId)
     {
+
         $vote = Vote::find($voteId);
 
         if ($vote->room_id != 0) {

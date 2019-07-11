@@ -70,7 +70,6 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
         StatisticalService::updateRow($votedetail->film_id, $votedetail->vote_id);
 
         return parent::delete($id);
-
     }
 
     /**
@@ -89,6 +88,7 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
             foreach ($votedetails as $value) {
                 $lists[] = $value->film_id;
             }
+
             return $lists;
         }
 
