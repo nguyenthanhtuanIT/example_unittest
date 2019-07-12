@@ -165,53 +165,35 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
         if (!empty($statistical)) {
             $film = Films::find($statistical->films_id);
             $vote = Vote::find($voteId);
-            $rom = Room::find($vote->room_id);
+            $room = Room::find($vote->room_id);
             $chair = Chair::where('vote_id', $voteId)->get(['chairs']);
+            $result = [
+                'poter' => $film->img,
+                'name_film' => $film->name_film,
+                'amount_vote' => $statistical->amount_votes,
+                'amount_registers' => $statistical->amount_registers,
+                'chairs' => $chair,
+            ];
 
-            if (empty($rom)) {
-                $result = [
-                    'poter' => $film->img,
-                    'name_film' => $film->name_film,
-                    'amount_vote' => $statistical->amount_votes,
-                    'amount_registers' => $statistical->amount_registers,
-                    'chairs' => $chair,
-                ];
-
-                if (!empty($vote->infor_time)) {
-                    $times = new Carbon($vote->infor_time);
-                    $date = $times->toDateString();
-                    $time = $times->toTimeString();
-                    $result['date'] = $date;
-                    $result['time'] = $time;
-                } else {
-                    $result['time'] = $vote->infor_time;
-                }
+            if (!empty($vote->infor_time)) {
+                $times = new Carbon($vote->infor_time);
+                $date = $times->toDateString();
+                $time = $times->toTimeString();
+                $result['date'] = $date;
+                $result['time'] = $time;
             } else {
-                $cinema = Cinema::find($rom->cinema_id);
-                $diagram = Diagram::where('room_id', $rom->id)->get(['row_of_seats', 'chairs']);
-                $chair = Chair::where('vote_id', $voteId)->get(['chairs']);
-                $result = [
-                    'poter' => $film->img,
-                    'name_film' => $film->name_film,
-                    'amount_vote' => $statistical->amount_votes,
-                    'amount_registers' => $statistical->amount_registers,
-                    'cinema' => $cinema->name_cinema,
-                    'address' => $cinema->address,
-                    'room' => $rom->name_room,
-                    'room_id' => $rom->id,
-                    'diagram' => $diagram,
-                    'chairs' => $chair,
-                ];
+                $result['time'] = $vote->infor_time;
+            }
 
-                if (!empty($vote->infor_time)) {
-                    $times = new Carbon($vote->infor_time);
-                    $date = $times->toDateString();
-                    $time = $times->toTimeString();
-                    $result['date'] = $date;
-                    $result['time'] = $time;
-                } else {
-                    $result['time'] = $vote->infor_time;
-                }
+            if (!empty($room)) {
+                $cinema = Cinema::find($room->cinema_id);
+                $diagram = Diagram::where('room_id', $room->id)->get(['row_of_seats', 'chairs']);
+                $result['cinema'] = $cinema->name_cinema;
+                $result['address'] = $cinema->address;
+                $result['room'] = $room->name_room;
+                $result['room_id'] = $$room->id;
+                $result['diagram'] = $diagram;
+
             }
         }
 
