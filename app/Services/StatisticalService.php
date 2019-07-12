@@ -58,6 +58,7 @@ class StatisticalService
      * @param int $filmId
      * @param int $voteId
      * @return bool
+
      */
     public static function addRegister($filmId, $voteId)
     {
@@ -89,6 +90,5 @@ class StatisticalService
         }
 
         return false;
-
     }
 }

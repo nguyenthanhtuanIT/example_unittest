@@ -5,7 +5,6 @@ namespace App\Repositories\Eloquent;
 use App\Mail\MailAgree;
 use App\Mail\MailCancel;
 use App\Mail\MailFeedback;
-use App\Mail\MailInvite;
 use App\Models\Register;
 use App\Models\User;
 use App\Presenters\RegisterPresenter;
@@ -228,6 +227,7 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
         }
 
         return $data = ['check' => $check, 'guest' => $guest];
+
     }
 
     /**

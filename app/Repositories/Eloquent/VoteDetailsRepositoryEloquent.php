@@ -78,7 +78,6 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
         }
 
         return parent::delete($id);
-
     }
 
     /**
