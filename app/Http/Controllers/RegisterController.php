@@ -164,7 +164,6 @@ class RegisterController extends Controller
         }
 
         return $this->error(trans('messages.errors.errorGuestRefuse'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
-
     }
 
     /**

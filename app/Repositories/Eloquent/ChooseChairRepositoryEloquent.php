@@ -169,7 +169,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         } else {
             $register = Register::where('vote_id', $vote->id)->get();
             $chairs = Chair::where('vote_id', $vote->id)->get();
-          
+
             if (count($chairs) == 0) {
                 return $result;
             }
@@ -282,7 +282,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                 unset($seats[$key]);
             }
         }
-      
+
         foreach ($viewers as $key => $viewersGroup) {
             if (!is_array($viewersGroup)) {
                 return $results;

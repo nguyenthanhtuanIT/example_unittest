@@ -210,7 +210,7 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
                             'user_id' => $id,
                         ];
 
-                        if (empty($value->agree)) {
+                        if (!empty($value->agree)) {
                             $arrayAgree = explode(',', $value->agree);
                             for ($i = 0; $i < count($arrayAgree); $i++) {
                                 if ($arrayAgree[$i] == $attributes['user_id']) {
@@ -227,7 +227,6 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
         }
 
         return $data = ['check' => $check, 'guest' => $guest];
-
     }
 
     /**
