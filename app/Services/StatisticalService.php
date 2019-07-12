@@ -15,7 +15,7 @@ class StatisticalService
         if (!empty($voteId) && !empty($filmId)) {
             $statisticals = Statistical::where(['vote_id' => $voteId, 'films_id' => $filmId])->get();
 
-            if ($data->count() == 0) {
+            if ($statisticals->count() == 0) {
                 $statistical = new Statistical;
                 $statistical->vote_id = $voteId;
                 $statistical->films_id = $filmId;
