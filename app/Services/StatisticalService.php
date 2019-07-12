@@ -87,8 +87,7 @@ class StatisticalService
             $statistical->save();
             return true;
         }
-
+      
         return false;
-
     }
 }

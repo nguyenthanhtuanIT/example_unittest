@@ -202,6 +202,7 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
                     'diagram' => $diagram,
                     'chairs' => $chair,
                 ];
+
                 if (!empty($vote->infor_time)) {
                     $times = new Carbon($vote->infor_time);
                     $date = $times->toDateString();

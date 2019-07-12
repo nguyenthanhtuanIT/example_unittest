@@ -168,6 +168,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         } else {
             $register = Register::where('vote_id', $vote->id)->get();
             $chairs = Chair::where('vote_id', $vote->id)->get();
+          
             if (count($chairs) == 0) {
                 return $result;
             }
