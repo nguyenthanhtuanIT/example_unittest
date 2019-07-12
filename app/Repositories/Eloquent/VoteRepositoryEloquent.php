@@ -78,7 +78,7 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
         $attributes['background'] = $link;
         $vote = parent::create($attributes);
         $user = User::all();
-      
+
         if ($vote->status_vote == Vote::VOTING) {
             foreach ($user as $value) {
                 Mail::to($value->email)->queue(new NotificationMessage());
@@ -127,15 +127,15 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
             $date = Carbon::now()->toDateTimeString();
 
             if ($vote->time_registing <= $date && $date < $vote->time_booking_chair && $vote->status_vote != Vote::REGISTING) {
-                $update = Vote::where('id', $vote->id)->update(['status_vote' => Vote::REGISTING]);
+                $update = $vote->update(['status_vote' => Vote::REGISTING]);
             } elseif ($vote->time_booking_chair <= $date && $date < $vote->time_end && $vote->status_vote != Vote::BOOKING) {
-                $update = Vote::where('id', $vote->id)->update(['status_vote' => Vote::BOOKING]);
+                $update = $vote->update(['status_vote' => Vote::BOOKING]);
 
                 if ($vote->room_id == 0 || $chair->count() == 0) {
                     return false;
                 }
             } elseif ($date >= $vote->time_end && $vote->status_vote != Vote::END) {
-                $update = Vote::where('id', $vote->id)->update(['status_vote' => Vote::END]);
+                $update = $vote->update(['status_vote' => Vote::END]);
             }
             return [
                 'id' => $vote->id,
@@ -169,66 +169,48 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
             $chair = Chair::where('vote_id', $voteId)->get(['chairs']);
 
             if (empty($rom)) {
-                if (!empty($vote->infor_time)) {
-                    $times = new Carbon($vote->infor_time);
-                    $date = $times->toDateString();
-                    $time = $times->toTimeString();
-                    $result = [
-                        'poter' => $film->img,
-                        'name_film' => $film->name_film,
-                        'amount_vote' => $statistical->amount_votes,
-                        'amount_registers' => $statistical->amount_registers,
-                        'chairs' => $chair,
-                        'date' => $date,
-                        'time' => $time,
-                    ];
-                } else {
-                    $result = [
-                        'poter' => $film->img,
-                        'name_film' => $film->name_film,
-                        'amount_vote' => $statistical->amount_votes,
-                        'amount_registers' => $statistical->amount_registers,
-                        'chairs' => $chair,
-                        'time' => $vote->infor_time,
-                    ];
-                }
-            } else {
-                $cinema = Cinema::find($rom->cinema_id);
-                $diagram = Diagram::where('room_id', $rom->id)->get(['row_of_seats', 'chairs']);
-                $chair = Chair::where('vote_id', $voteId)->get(['chairs']);
+                $result = [
+                    'poter' => $film->img,
+                    'name_film' => $film->name_film,
+                    'amount_vote' => $statistical->amount_votes,
+                    'amount_registers' => $statistical->amount_registers,
+                    'chairs' => $chair,
+                ];
 
                 if (!empty($vote->infor_time)) {
                     $times = new Carbon($vote->infor_time);
                     $date = $times->toDateString();
                     $time = $times->toTimeString();
-                    $result = [
-                        'poter' => $film->img,
-                        'name_film' => $film->name_film,
-                        'amount_vote' => $statistical->amount_votes,
-                        'amount_registers' => $statistical->amount_registers,
-                        'cinema' => $cinema->name_cinema,
-                        'address' => $cinema->address,
-                        'room' => $rom->name_room,
-                        'room_id' => $rom->id,
-                        'diagram' => $diagram,
-                        'chairs' => $chair,
-                        'date' => $date,
-                        'time' => $time,
-                    ];
+                    $result['date'] = $date;
+                    $result['time'] = $time;
                 } else {
-                    $result = [
-                        'poter' => $film->img,
-                        'name_film' => $film->name_film,
-                        'amount_vote' => $statistical->amount_votes,
-                        'amount_registers' => $statistical->amount_registers,
-                        'cinema' => $cinema->name_cinema,
-                        'address' => $cinema->address,
-                        'room' => $rom->name_room,
-                        'room_id' => $rom->id,
-                        'diagram' => $diagram,
-                        'chairs' => $chair,
-                        'time' => $vote->infor_time,
-                    ];
+                    $result['time'] = $vote->infor_time;
+                }
+            } else {
+                $cinema = Cinema::find($rom->cinema_id);
+                $diagram = Diagram::where('room_id', $rom->id)->get(['row_of_seats', 'chairs']);
+                $chair = Chair::where('vote_id', $voteId)->get(['chairs']);
+                $result = [
+                    'poter' => $film->img,
+                    'name_film' => $film->name_film,
+                    'amount_vote' => $statistical->amount_votes,
+                    'amount_registers' => $statistical->amount_registers,
+                    'cinema' => $cinema->name_cinema,
+                    'address' => $cinema->address,
+                    'room' => $rom->name_room,
+                    'room_id' => $rom->id,
+                    'diagram' => $diagram,
+                    'chairs' => $chair,
+                ];
+
+                if (!empty($vote->infor_time)) {
+                    $times = new Carbon($vote->infor_time);
+                    $date = $times->toDateString();
+                    $time = $times->toTimeString();
+                    $result['date'] = $date;
+                    $result['time'] = $time;
+                } else {
+                    $result['time'] = $vote->infor_time;
                 }
             }
         }

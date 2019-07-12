@@ -18,6 +18,7 @@ class Comment extends BaseModel
      * @var array
      */
     protected $fillable = ['user_id', 'blog_id', 'content'];
+
     /**
      * Get name of user
      * @return string

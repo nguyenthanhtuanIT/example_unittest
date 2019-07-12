@@ -10,6 +10,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::resource('statisticals', 'StatisticalController');
     Route::get('user_comment/{blogId}', 'CommentController@getComments');
     Route::get('amount_vote_films/{voteId}', 'StatisticalController@getAmountVote');
+    Route::post('search_blog', 'BlogController@searchBlogByTitle');
     Route::post('update_status_chair', 'ChairController@updateStatusChair');
 
     //Route::group(['middleware' => ['auth:api']], function () {
@@ -34,7 +35,6 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('un_voted', 'VoteDetailController@unVoted');
     Route::resource('statisticals', 'StatisticalController');
     Route::resource('comments', 'CommentController')->only('store', 'update', 'destroy');
-    Route::post('search_blog', 'BlogController@searchBlogByTitle');
     Route::post('agree', 'RegisterController@userAgree');
 
     //Route::group(['prefix' => 'admin', 'middleware' => 'checkroles'], function () {

@@ -110,7 +110,7 @@ class BlogController extends Controller
     public function searchBlogByTitle(Request $request)
     {
         $result = $this->repository->searchBlog($request->key);
-        return $this->success($result, trans('messages.blogs.success'), ['isContainByDataString' => true]);
+        return $this->success($result->toArray(), trans('messages.blogs.success'));
     }
 
     /**

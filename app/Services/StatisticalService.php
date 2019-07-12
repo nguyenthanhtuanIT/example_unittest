@@ -9,6 +9,7 @@ class StatisticalService
      * Add statictical when vote
      * @param int $filmId
      * @param int $voteId
+     * @return bool
      */
     public static function addRow($filmId, $voteId)
     {
@@ -16,58 +17,77 @@ class StatisticalService
             $statisticals = Statistical::where(['vote_id' => $voteId, 'films_id' => $filmId])->get();
 
             if ($statisticals->count() == 0) {
-                $statistical = new Statistical;
-                $statistical->vote_id = $voteId;
-                $statistical->films_id = $filmId;
-                $statistical->amount_votes += 1;
-                $statistical->save();
-            } else {
-                foreach ($statisticals as $value) {
-                    $value->amount_votes += 1;
-                    $value->save();
-                }
+                $statisticals = new Statistical;
+                $statisticals->vote_id = $voteId;
+                $statisticals->films_id = $filmId;
+                $statisticals->amount_votes += 1;
+                $statisticals->save();
             }
-
+            foreach ($statisticals as $value) {
+                $value->amount_votes += 1;
+                $value->save();
+            }
+            return true;
         }
 
+        return false;
     }
 
     /**
      * Update statictical when vote
      * @param  int $filmId
      * @param  int $voteId
+     * @return bool
      */
     public static function updateRow($filmId, $voteId)
     {
         $statisticals = Statistical::where(['vote_id' => $voteId, 'films_id' => $filmId])->get();
-        foreach ($statisticals as $value) {
-            $value->amount_votes -= 1;
-            $value->save();
+        if ($statisticals) {
+            foreach ($statisticals as $value) {
+                $value->amount_votes -= 1;
+                $value->save();
+            }
+            return true;
         }
+
+        return false;
     }
 
     /**
      * Increase amount vote
      * @param int $filmId
      * @param int $voteId
+     * @return bool
      */
     public static function addRegister($filmId, $voteId)
     {
         $statistical = Statistical::where(['vote_id' => $voteId, 'films_id' => $filmId])->first();
-        $statistical->amount_registers += 1;
-        $statistical->save();
+
+        if ($statistical) {
+            $statistical->amount_registers += 1;
+            $statistical->save();
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Reduction amount vote
      * @param int $filmId
      * @param int $voteId
+     * @return bool
      */
     public static function updateRegister($filmId, $voteId)
     {
         $statistical = Statistical::where(['vote_id' => $voteId, 'films_id' => $filmId])->first();
-        $statistical->amount_registers -= 1;
-        $statistical->save();
 
+        if ($statistical) {
+            $statistical->amount_registers -= 1;
+            $statistical->save();
+            return true;
+        }
+
+        return false;
     }
 }

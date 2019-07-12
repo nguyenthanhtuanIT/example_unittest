@@ -114,7 +114,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     public function checkChoosed(array $attributes)
     {
         $check = false;
-        $result = [];
+        $result = ['check' => $check];
         $user = '';
         $register = Register::where('vote_id', $attributes['vote_id'])->where('ticket_number', '>', 1)->get();
         foreach ($register as $value) {
@@ -136,7 +136,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
             $check = true;
             $result = ['check' => $check, 'seats' => $choosed->seats];
         }
-        $result = ['check' => $check];
 
         return $result;
     }
@@ -169,7 +168,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         } else {
             $register = Register::where('vote_id', $vote->id)->get();
             $chairs = Chair::where('vote_id', $vote->id)->get();
-
+          
             if (count($chairs) == 0) {
                 return $result;
             }
@@ -282,7 +281,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                 unset($seats[$key]);
             }
         }
-
         foreach ($viewers as $key => $viewersGroup) {
             if (!is_array($viewersGroup)) {
                 return $results;

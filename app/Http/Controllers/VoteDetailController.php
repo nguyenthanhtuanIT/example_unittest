@@ -51,6 +51,11 @@ class VoteDetailController extends Controller
     public function store(Request $request)
     {
         $voteDetail = $this->repository->create($request->all());
+
+        if (!$voteDetail) {
+            return $this->error(trans('messages.errors.errorVoteDetail'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+
         return $this->success($voteDetail, trans('messages.voteDetails.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
@@ -90,7 +95,12 @@ class VoteDetailController extends Controller
      */
     public function destroy($id)
     {
-        $this->repository->delete($id);
+        $delete = $this->repository->delete($id);
+
+        if (!$delete) {
+            return $this->error(trans('messages.errors.errorVoteDetail'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+
         return $this->success([], trans('messages.voteDetails.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
