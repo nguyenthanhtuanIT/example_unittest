@@ -88,7 +88,6 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
             foreach ($votedetails as $value) {
                 $lists[] = $value->film_id;
             }
-
             return $lists;
         }
 

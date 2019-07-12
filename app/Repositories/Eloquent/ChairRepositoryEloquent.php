@@ -113,6 +113,7 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
             }
         }
         $arrayDiff = array_diff($arrayChairs, $arrayChooseChairs);
+      
         foreach ($arrayDiff as $key => $value) {
             $result[] = $value;
         }

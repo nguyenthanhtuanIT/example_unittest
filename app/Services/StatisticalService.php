@@ -16,18 +16,18 @@ class StatisticalService
             $statisticals = Statistical::where(['vote_id' => $voteId, 'films_id' => $filmId])->get();
 
             if ($statisticals->count() == 0) {
-                $statisticals = new Statistical;
-                $statisticals->vote_id = $voteId;
-                $statisticals->films_id = $filmId;
-                $statisticals->amount_votes += 1;
-                $statisticals->save();
+                $statistical = new Statistical;
+                $statistical->vote_id = $voteId;
+                $statistical->films_id = $filmId;
+                $statistical->amount_votes += 1;
+                $statistical->save();
             } else {
                 foreach ($statisticals as $value) {
                     $value->amount_votes += 1;
                     $value->save();
                 }
             }
-            
+
         }
 
     }

@@ -29,6 +29,12 @@ class ChairTransformer extends BaseTransformer
      * @var array
      */
     protected $defaultIncludes = [];
+
+    /**
+     * Transform the custom field entity.
+     *
+     * @return array
+     */
     public function customAttributes($model): array
     {
         return [

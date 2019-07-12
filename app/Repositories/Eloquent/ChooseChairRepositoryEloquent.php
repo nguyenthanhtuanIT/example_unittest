@@ -84,7 +84,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                 for ($j = 0; $j < count($seat); $j++) {
                     if ($chair[$i] == $seat[$j]) {
                         return $result;
-                        break;
                     }
                 }
             }

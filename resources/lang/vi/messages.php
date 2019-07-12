@@ -52,10 +52,7 @@ return [
         'showSuccess' => 'Show Success',
         'deleteSuccess' => 'Delete Success',
         'success' => 'Success',
-<<<<<<< HEAD
         'dataEmpty' => 'Not data need find',
-=======
->>>>>>> ff4309e12069643ace24b68c58aab4966e1412b1
     ],
 
     'films' => [
@@ -65,10 +62,7 @@ return [
         'showSuccess' => 'Show Success',
         'deleteSuccess' => 'Delete Success',
         'success' => 'Success',
-<<<<<<< HEAD
         'dataEmpty' => 'Now not data you request',
-=======
->>>>>>> ff4309e12069643ace24b68c58aab4966e1412b1
     ],
 
     'images' => [
@@ -85,11 +79,7 @@ return [
         'storeSuccess' => 'Store Success',
         'getListSuccess' => 'Get List Success',
         'showSuccess' => 'Show Success',
-<<<<<<< HEAD
         'deleteSuccess' => 'Delete Success',
-=======
-        'seleteSuccess' => 'Delete Success',
->>>>>>> ff4309e12069643ace24b68c58aab4966e1412b1
         'success' => 'Success',
     ],
 
@@ -107,13 +97,8 @@ return [
         'storeSuccess' => 'Store Success',
         'getListSuccess' => 'Get List Success',
         'showSuccess' => 'Show Success',
-<<<<<<< HEAD
         'deleteSuccess' => 'Delete Success',
         'success' => 'Success',
-=======
-        'seleteSuccess' => 'Delete Success',
-        'duccess' => 'Success',
->>>>>>> ff4309e12069643ace24b68c58aab4966e1412b1
     ],
 
     'statisticals' => [
@@ -123,11 +108,8 @@ return [
         'showSuccess' => 'Show Success',
         'deleteSuccess' => 'Delete Success',
         'success' => 'Success',
-<<<<<<< HEAD
         'movieEmpty' => 'No movies selected',
         'dataEmpty' => 'Now no data you request',
-=======
->>>>>>> ff4309e12069643ace24b68c58aab4966e1412b1
     ],
 
     'users' => [
@@ -146,11 +128,8 @@ return [
         'showSuccess' => 'Show Success',
         'deleteSuccess' => 'Delete Success',
         'success' => 'Success',
-<<<<<<< HEAD
         'dataEmpty' => 'Now not data vote',
         'buyChairs' => 'Buying a chairs',
-=======
->>>>>>> ff4309e12069643ace24b68c58aab4966e1412b1
     ],
 
     'voteDetails' => [
@@ -171,10 +150,7 @@ return [
         'errorCreateDiagram' => 'Row of seats exited',
         'errorCreateRandom' => 'VoteId exited',
         'errorCreateRegister' => 'Register exited',
-<<<<<<< HEAD
         'errorUserAgree' => 'Feedback fail',
-=======
->>>>>>> ff4309e12069643ace24b68c58aab4966e1412b1
     ],
 ]
 ?>
