@@ -20,7 +20,7 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
     /**
      * Specify Model class name
      *
-     * @return string
+     * @return object
      */
     public function model()
     {
@@ -30,7 +30,7 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
     /**
      * Specify Presenter class name
      *
-     * @return string
+     * @return object
      */
     public function presenter()
     {
@@ -48,7 +48,7 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
     /**
      * Custom created add image
      * @param  array  $attributes
-     * @return \Illuminate\Http\Response
+     * @return object
      */
     public function create(array $attributes)
     {
@@ -64,7 +64,7 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
      * Custom update
      * @param  array  $attributes
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return object
      */
     public function update(array $attributes, $id)
     {
@@ -89,7 +89,7 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
     /**
      * Search blog by name
      * @param  string $key
-     * @return \Illuminate\Http\Response
+     * @return object
      */
     public function searchBlog($key)
     {
@@ -100,7 +100,7 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
 
     /**
      * Get all blog sort by id desc
-     * @return \Illuminate\Http\Response
+     * @return object
      */
     public function getAll()
     {
