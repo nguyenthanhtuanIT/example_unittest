@@ -142,10 +142,9 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
             $films = Films::all();
             foreach ($statisticals as $statistical) {
                 foreach ($films as $value) {
-                    if ($statistical->films_id != null) {
-                        if ($statistical->films_id == $value->id) {
-                            $info[] = array($value->name_film, $statistical->amount_votes);
-                        }
+
+                    if ($statistical->films_id != null && $statistical->films_id == $value->id) {
+                        $info[] = array($value->name_film, $statistical->amount_votes);
                     } else {
                         return $result;
                     }

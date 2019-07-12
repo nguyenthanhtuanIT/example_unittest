@@ -51,16 +51,14 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
      */
     public function create(array $attributes)
     {
-
-        $VoteDetails = parent::create($attributes);
-        $add = StatisticalService::addRow($VoteDetails['data']['attributes']['film_id'], $VoteDetails['data']['attributes']['vote_id']);
+        $voteDetails = parent::create($attributes);
+        $add = StatisticalService::addRow($voteDetails['data']['attributes']['film_id'], $voteDetails['data']['attributes']['vote_id']);
 
         if (!$add) {
             return false;
         }
 
-        return $votedetails;
-
+        return $voteDetails;
     }
 
     /**
@@ -70,8 +68,8 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
      */
     public function delete($id)
     {
-        $votedetail = VoteDetails::find($id);
-        $upload = StatisticalService::updateRow($votedetail->film_id, $votedetail->vote_id);
+        $voteDetail = VoteDetails::find($id);
+        $upload = StatisticalService::updateRow($voteDetail->film_id, $voteDetail->vote_id);
 
         if (!$upload) {
             return false;
@@ -90,10 +88,10 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
         $useId = $attributes['user_id'];
         $voteId = $attributes['vote_id'];
         $lists = [];
-        $votedetails = $this->model()::where(['user_id' => $useId, 'vote_id' => $voteId])->get();
+        $voteDetail = $this->model()::where(['user_id' => $useId, 'vote_id' => $voteId])->get();
 
-        if (count($votedetails) != 0) {
-            foreach ($votedetails as $value) {
+        if (count($voteDetail) != 0) {
+            foreach ($voteDetail as $value) {
                 $lists[] = $value->film_id;
             }
             return $lists;
@@ -109,13 +107,13 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
      */
     public function delVote(array $attributes)
     {
-        $votedetail = VoteDetails::where([
+        $voteDetail = VoteDetails::where([
             'vote_id' => $attributes['vote_id'],
             'film_id' => $attributes['film_id'],
             'user_id' => $attributes['user_id'],
         ])->first();
 
-        return $this->delete($votedetail->id);
+        return $this->delete($voteDetail->id);
     }
 
     /**

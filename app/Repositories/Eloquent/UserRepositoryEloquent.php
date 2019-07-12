@@ -96,10 +96,8 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
             for ($i = 0; $i < count($user); $i++) {
                 if (is_numeric($user[$i])) {
                     $arrayRegister[] = (int) $user[$i];
-                } else {
-                    $arrayRegister[] = $user[$i];
                 }
-
+                $arrayRegister[] = $user[$i];
             }
         }
         $arrayMerge = array_merge($array, $arrayRegister);
