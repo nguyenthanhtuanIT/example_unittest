@@ -61,7 +61,7 @@ class RegisterController extends Controller
         if (!$register) {
             return $this->error(trans('messages.errors.errorRegisterAdd'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
         }
-      
+
         return $this->success($register, trans('messages.registers.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
@@ -93,7 +93,7 @@ class RegisterController extends Controller
         if (!$register) {
             return $this->error(trans('messages.errors.errorUpdateRegister'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
         }
-      
+
         return $this->success($register, trans('messages.registers.updateSuccess'));
     }
 
@@ -132,6 +132,7 @@ class RegisterController extends Controller
      */
     public function checkRegistered(Request $request)
     {
+
         $checkRegister = $this->repository->checkRegister($request->all());
         return $this->success($checkRegister, trans('messages.registers.success'), ['isContainByDataString' => true]);
     }
