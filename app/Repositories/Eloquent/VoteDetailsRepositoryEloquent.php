@@ -70,7 +70,6 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
         StatisticalService::updateRow($votedetail->film_id, $votedetail->vote_id);
 
         return parent::delete($id);
-
     }
 
     /**

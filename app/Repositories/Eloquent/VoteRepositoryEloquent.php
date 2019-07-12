@@ -78,6 +78,7 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
         $attributes['background'] = $link;
         $vote = parent::create($attributes);
         $user = User::all();
+      
         if ($vote->status_vote == Vote::VOTING) {
             foreach ($user as $value) {
                 Mail::to($value->email)->queue(new NotificationMessage());

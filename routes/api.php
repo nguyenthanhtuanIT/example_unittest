@@ -69,4 +69,5 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('chair_by_vote/{voteId}', 'ChairController@getDiagramChairByVote');
         });
     });
+
 });
