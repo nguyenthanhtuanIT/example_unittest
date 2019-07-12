@@ -127,15 +127,15 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
             $date = Carbon::now()->toDateTimeString();
 
             if ($vote->time_registing <= $date && $date < $vote->time_booking_chair && $vote->status_vote != Vote::REGISTING) {
-                $update = Vote::where('id', $vote->id)->update(['status_vote' => Vote::REGISTING]);
+                $update = $vote->update(['status_vote' => Vote::REGISTING]);
             } elseif ($vote->time_booking_chair <= $date && $date < $vote->time_end && $vote->status_vote != Vote::BOOKING) {
-                $update = Vote::where('id', $vote->id)->update(['status_vote' => Vote::BOOKING]);
+                $update = $vote->update(['status_vote' => Vote::BOOKING]);
 
                 if ($vote->room_id == 0 || $chair->count() == 0) {
                     return false;
                 }
             } elseif ($date >= $vote->time_end && $vote->status_vote != Vote::END) {
-                $update = Vote::where('id', $vote->id)->update(['status_vote' => Vote::END]);
+                $update = $vote->update(['status_vote' => Vote::END]);
             }
             return [
                 'id' => $vote->id,

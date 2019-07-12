@@ -107,13 +107,14 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
     public function infoByVote($voteId)
     {
         $vote = Vote::find($voteId);
+        $result = [];
         $statistical = Statistical::where(['vote_id' => $voteId,
             'movie_selected' => Films::SELECTED])->first();
 
         if ($statistical) {
             $film = Films::find($statistical->films_id);
             $ticketOutsite = Register::where('vote_id', $voteId)->sum('ticket_outsite');
-            return [
+            $result = [
                 'name_vote' => $vote->name_vote,
                 'films' => $film->name_film,
                 'amount_vote' => $statistical->amount_votes,
@@ -123,7 +124,7 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
             ];
         }
 
-        return [];
+        return $result;
     }
 
     /**

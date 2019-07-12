@@ -106,8 +106,12 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
             }
             $attributes['ticket_outsite'] = $ticketOutsite;
             $register = parent::create($attributes);
-            StatisticalService::addRegister($register['data']['attributes']['film_id'], $register['data']['attributes']['vote_id']);
-            VoteService::addTicket($register['data']['attributes']['vote_id'], $register['data']['attributes']['ticket_number']);
+            $addRegister = StatisticalService::addRegister($register['data']['attributes']['film_id'], $register['data']['attributes']['vote_id']);
+            $addTicket = VoteService::addTicket($register['data']['attributes']['vote_id'], $register['data']['attributes']['ticket_number']);
+
+            if (!$addRegister || !$addTicket) {
+                return false;
+            }
 
             return $register;
         }
@@ -122,8 +126,12 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
     public function delete($id)
     {
         $find = Register::find($id);
-        StatisticalService::updateRegister($find->film_id, $find->vote_id);
-        VoteService::deleteTicket($find->vote_id, $find->ticket_number);
+        $updateRegister = StatisticalService::updateRegister($find->film_id, $find->vote_id);
+        $deleteTicket = VoteService::deleteTicket($find->vote_id, $find->ticket_number);
+
+        if (!$updateRegister || !$deleteTicket) {
+            return false;
+        }
 
         return parent::delete($id);
     }
@@ -142,7 +150,11 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
             $find = Register::find($id);
             $numberOld = $find->ticket_number;
             $numberNew = $register->ticket_number;
-            VoteService::updateTicket($find->vote_id, $numberOld, $numberNew);
+            $updateTicket = VoteService::updateTicket($find->vote_id, $numberOld, $numberNew);
+
+            if (!$updateTicket) {
+                return false;
+            }
         }
 
         return $register;
@@ -169,19 +181,18 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
         $check = false;
         $guest = false;
         $agree = false;
-        $userRegister = $this->getUserRegister($attributes['user_id'], $attributes['vote_id'])->get();
+        $userRegister = $this->getUserRegister($attributes['user_id'], $attributes['vote_id'])->first();
         $register = Register::where('vote_id', $attributes['vote_id'])->where('ticket_number', '>', 1)->get();
 
-        if ($userRegister->count() != 0) {
-            foreach ($userRegister as $value) {
-                $check = true;
-                return [
-                    'check' => $check,
-                    'guest' => $guest,
-                    'user_id' => $value->user_id,
-                    'ticket_number' => $value->ticket_number,
-                ];
-            }
+        if ($userRegister) {
+            $check = true;
+            $data = [
+                'check' => $check,
+                'guest' => $guest,
+                'user_id' => $userRegister->user_id,
+                'ticket_number' => $userRegister->ticket_number,
+            ];
+            return $data;
         } elseif ($register->count() != 0) {
             foreach ($register as $value) {
                 $people = explode(',', $value->best_friend);
@@ -191,8 +202,15 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
                         $guest = true;
                         $id = $value->user_id;
                         $user = User::find($id);
+                        $data = [
+                            'check' => $check,
+                            'guest' => $guest,
+                            'fullname' => $user->full_name,
+                            'avatar' => $user->avatar,
+                            'user_id' => $id,
+                        ];
 
-                        if (!empty($value->agree)) {
+                        if (empty($value->agree)) {
                             $arrayAgree = explode(',', $value->agree);
                             for ($i = 0; $i < count($arrayAgree); $i++) {
                                 if ($arrayAgree[$i] == $attributes['user_id']) {
@@ -200,29 +218,16 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
                                     break;
                                 }
                             }
-                            return [
-                                'check' => $check,
-                                'guest' => $guest,
-                                'user_id' => $id,
-                                'fullname' => $user->full_name,
-                                'avatar' => $user->avatar,
-                                'agree' => $agree,
-                            ];
-                        } else {
-                            return [
-                                'check' => $check,
-                                'guest' => $guest,
-                                'fullname' => $user->full_name,
-                                'avatar' => $user->avatar,
-                                'user_id' => $id,
-                            ];
+                            $data['agree'] = $agree;
                         }
+                        return $data;
                     }
                 }
             }
         }
 
-        return ['check' => $check, 'guest' => $guest];
+        return $data = ['check' => $check, 'guest' => $guest];
+
     }
 
     /**
@@ -252,7 +257,7 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
     /**
      * User Refuse
      * @param  array  $attributes
-     * @return Illuminate\Http\Response
+     * @return bool
      */
     public function guestRefuse(array $attributes)
     {
@@ -273,7 +278,11 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
 
         if ($update == 1) {
             $newRegister = $this->getUserRegister($userId, $voteId)->first();
-            VoteService::updateTicket($voteId, $userGuest->ticket_number, $newRegister->ticket_number);
+            $updateTicket = VoteService::updateTicket($voteId, $userGuest->ticket_number, $newRegister->ticket_number);
+
+            if (!$updateTicket) {
+                return false;
+            }
         }
         $user = User::find($userId);
         Mail::to($user->email)->queue(new MailFeedback());

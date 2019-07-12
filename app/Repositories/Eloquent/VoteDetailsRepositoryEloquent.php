@@ -53,9 +53,13 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
     {
 
         $VoteDetails = parent::create($attributes);
-        StatisticalService::addRow($VoteDetails['data']['attributes']['film_id'], $VoteDetails['data']['attributes']['vote_id']);
+        $add = StatisticalService::addRow($VoteDetails['data']['attributes']['film_id'], $VoteDetails['data']['attributes']['vote_id']);
 
-        return $VoteDetails;
+        if (!$add) {
+            return false;
+        }
+
+        return $votedetails;
 
     }
 
@@ -67,7 +71,11 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
     public function delete($id)
     {
         $votedetail = VoteDetails::find($id);
-        StatisticalService::updateRow($votedetail->film_id, $votedetail->vote_id);
+        $upload = StatisticalService::updateRow($votedetail->film_id, $votedetail->vote_id);
+
+        if (!$upload) {
+            return false;
+        }
 
         return parent::delete($id);
     }

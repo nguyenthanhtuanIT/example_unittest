@@ -65,15 +65,6 @@ return [
         'dataEmpty' => 'Now not data you request',
     ],
 
-    'images' => [
-        'updateSuccess' => 'Update Success',
-        'storeSuccess' => 'Store Success',
-        'getListSuccess' => 'Get List Success',
-        'showSuccess' => 'Show Success',
-        'deleteSuccess' => 'Delete Success',
-        'success' => 'Success',
-    ],
-
     'randoms' => [
         'updateSuccess' => 'Update Success',
         'storeSuccess' => 'Store Success',
@@ -151,6 +142,11 @@ return [
         'errorCreateRandom' => 'VoteId exited',
         'errorCreateRegister' => 'Register exited',
         'errorUserAgree' => 'Feedback fail',
+        'errorVoteDetail' => 'Value default empty',
+        'errorRegisterAdd' => 'Error add register or add ticket',
+        'errorUpdateRegister' => 'Error update when add ticket',
+        'errorDeleteRegister' => 'Error delete ticket or update register',
+        'errorGuestRefuse' => 'Error update ticket when refuse ',
     ],
 ]
 ?>

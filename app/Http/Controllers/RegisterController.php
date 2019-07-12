@@ -58,6 +58,10 @@ class RegisterController extends Controller
             return $this->error(trans('messages.errors.errorCreateRegister'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
         }
 
+        if (!$register) {
+            return $this->error(trans('messages.errors.errorRegisterAdd'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+      
         return $this->success($register, trans('messages.registers.storeSuccess'), ['code' => Response::HTTP_CREATED]);
     }
 
@@ -85,6 +89,11 @@ class RegisterController extends Controller
     public function update(Request $request, $id)
     {
         $register = $this->repository->update($request->all(), $id);
+
+        if (!$register) {
+            return $this->error(trans('messages.errors.errorUpdateRegister'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+      
         return $this->success($register, trans('messages.registers.updateSuccess'));
     }
 
@@ -97,7 +106,12 @@ class RegisterController extends Controller
      */
     public function destroy($id)
     {
-        $this->repository->delete($id);
+        $delete = $this->repository->delete($id);
+
+        if (!$delete) {
+            return $this->error(trans('messages.errors.errorDeleteRegister'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+        }
+
         return $this->success([], trans('messages.registers.deleteSuccess'), ['code' => Response::HTTP_NO_CONTENT]);
     }
 
@@ -148,6 +162,9 @@ class RegisterController extends Controller
         if ($status) {
             return $this->success($status, trans('messages.registers.success'), ['isContainByDataString' => true]);
         }
+
+        return $this->error(trans('messages.errors.errorGuestRefuse'), trans('messages.errors.badRequest'), Response::HTTP_BAD_REQUEST);
+
     }
 
     /**

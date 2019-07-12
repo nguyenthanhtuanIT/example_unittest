@@ -107,7 +107,7 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
                 }
             }
         }
-      
+
         return parent::delete($id);
     }
     /**
