@@ -94,7 +94,7 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
     public function searchBlog($key)
     {
         $blogs = Blog::where('name_blog', 'LIKE', "%{$key}%")
-            ->paginate(8);
+            ->orderBy('id', 'DESC')->paginate(8);
         return $blogs;
     }
 
