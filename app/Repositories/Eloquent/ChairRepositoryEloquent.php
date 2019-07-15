@@ -62,19 +62,13 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
     public function create(array $attributes)
     {
         $count = $this->chairByVote($attributes['vote_id'])->count();
-        $chairs = null;
-
-        if ($count) {
-            return $chairs;
-        }
         $vote = Vote::find($attributes['vote_id']);
 
-        if ($vote->status_vote != Vote::BOOKING) {
-            return $chairs;
+        if ($count || $vote->status_vote != Vote::BOOKING) {
+            return null;
         }
-        $chairs = parent::create($attributes);
 
-        return $chairs;
+        return parent::create($attributes);
     }
 
     /**

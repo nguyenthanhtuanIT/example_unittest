@@ -69,7 +69,6 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     public function create(array $attributes)
     {
         $count = $this->getOfUserByVote($attributes['user_id'], $attributes['vote_id'])->first();
-        $result = null;
         $seat = explode(',', $attributes['seats']);
 
         if (!empty($count)) {
@@ -83,14 +82,13 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
             for ($i = 0; $i < count($chair); $i++) {
                 for ($j = 0; $j < count($seat); $j++) {
                     if ($chair[$i] == $seat[$j]) {
-                        return $result;
+                        return null;
                     }
                 }
             }
         }
-        $result = parent::create($attributes);
 
-        return $result;
+        return parent::create($attributes);
     }
 
     /**
