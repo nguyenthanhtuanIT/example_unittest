@@ -53,6 +53,8 @@ class VoteDetailsRepositoryEloquent extends BaseRepository implements VoteDetail
     {
         $voteDetails = parent::create($attributes);
         $add = StatisticalService::addRow($voteDetails['data']['attributes']['film_id'], $voteDetails['data']['attributes']['vote_id']);
+        $voteDetails = parent::create($attributes);
+        $add = StatisticalService::addRow($voteDetails['data']['attributes']['film_id'], $voteDetails['data']['attributes']['vote_id']);
 
         if (!$add) {
             return false;

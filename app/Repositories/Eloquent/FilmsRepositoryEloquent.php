@@ -149,9 +149,9 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
      */
     public function filmToRegister($voteId)
     {
-        $check = Statistical::where(['vote_id' => $voteId, 'movie_selected' => Films::SELECTED])->get();
+        $check = Statistical::where(['vote_id' => $voteId, 'movie_selected' => Films::SELECTED])->first();
 
-        if ($check->count() != 1) {
+        if (!$check) {
             $max = Statistical::where('vote_id', $voteId)->max('amount_votes');
             $statistical = $this->getVoteMax($voteId, $max)->get();
 
@@ -167,10 +167,8 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
                 Statistical::where(['vote_id' => $voteId, 'films_id' => $films->id])->update(['movie_selected' => Films::SELECTED]);
                 return $films;
             }
-        } else {
-            foreach ($check as $value) {
-                return Films::find($value->films_id);
-            }
         }
+
+        return Films::find($check->films_id);
     }
 }

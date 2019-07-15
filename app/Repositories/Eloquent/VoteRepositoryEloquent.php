@@ -84,8 +84,8 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
                 Mail::to($value->email)->queue(new NotificationMessage());
             }
         }
-        return $vote;
 
+        return $vote;
     }
 
     /**
@@ -193,7 +193,6 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
                 $result['room'] = $room->name_room;
                 $result['room_id'] = $$room->id;
                 $result['diagram'] = $diagram;
-
             }
         }
 

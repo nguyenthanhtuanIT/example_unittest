@@ -161,92 +161,83 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     public function randChair(array $attributes)
     {
         $vote = Vote::find($attributes['vote_id']);
+        $register = Register::where('vote_id', $vote->id)->get();
+        $chairs = Chair::where('vote_id', $vote->id)->get();
         $result = false;
 
-        if ($vote->status_vote != Vote::BOOKING) {
+        if ($vote->status_vote != Vote::BOOKING || count($chairs) == 0) {
             return $result;
-        } else {
-            $register = Register::where('vote_id', $vote->id)->get();
-            $chairs = Chair::where('vote_id', $vote->id)->get();
-          
-            if (count($chairs) == 0) {
-                return $result;
-            }
-            $publish = $seats = $viewers = $array = $temp = $arrayName = $array_result = [];
-            foreach ($register as $value) {
-                if ($value->ticket_number == 1) {
-                    $name = User::find($value->user_id);
-                    $arrayName[] = $name->full_name;
-                } elseif ($value->ticket_number > 1) {
-                    $findUser = User::find($value->user_id);
-                    $array = array($findUser->full_name);
-                    $friend = explode(',', $value->best_friend);
-                    for ($i = 0; $i < count($friend); $i++) {
-                        if (is_numeric($friend[$i])) {
-                            $convert = (int) $friend[$i];
-                            if ($convert != 0) {
-                                $name = User::find($convert);
-                                $array[] = $name->full_name;
-                            }
-                        } else {
-                            $array[] = $friend[$i];
-                        }
+        }
+        $publish = $seats = $viewers = $array = $temp = $arrayName = $array_result = [];
+        foreach ($register as $value) {
+            $findUser = User::find($value->user_id);
+            if ($value->ticket_number == 1) {
+                $arrayName[] = $findUser->full_name;
+            } elseif ($value->ticket_number > 1) {
+                $array = array($findUser->full_name);
+                $friend = explode(',', $value->best_friend);
+                for ($i = 0; $i < count($friend); $i++) {
+                    if (is_numeric($friend[$i]) && (int) $friend[$i] != 0) {
+                        $name = User::find((int) $friend[$i]);
+                        $array[] = $name->full_name;
+                    } else {
+                        $array[] = $friend[$i];
                     }
-                    $temp[] = $array;
                 }
+                $temp[] = $array;
             }
-            $viewers = array_merge($arrayName, $temp);
-            //seats
-            foreach ($chairs as $value) {
-                $arrayChairs = $value->chairs;
-                $arraySeats = [];
-                for ($i = 0; $i < count($arrayChairs); $i++) {
-                    $arraySeats[] = $arrayChairs[$i];
-                }
-                sort($arraySeats, SORT_STRING);
-                for ($i = 0; $i < count($arraySeats); $i++) {
-                    if ($i == (count($arraySeats) - 1)) {
+        }
+        $viewers = array_merge($arrayName, $temp);
+        //seats
+        foreach ($chairs as $value) {
+            $arrayChairs = $value->chairs;
+            $arraySeats = [];
+            for ($i = 0; $i < count($arrayChairs); $i++) {
+                $arraySeats[] = $arrayChairs[$i];
+            }
+            sort($arraySeats, SORT_STRING);
+            for ($i = 0; $i < count($arraySeats); $i++) {
+                if ($i == (count($arraySeats) - 1)) {
+                    $handingString = substr($arraySeats[$i], 0, 1);
+                    $numberSeat = (int) substr($arraySeats[$i], 1);
+                    $subString = substr($arraySeats[$i - 1], 0, 1);
+                    $numberSeatConvert = (int) substr($arraySeats[$i - 1], 1);
+                    if (ord($handingString) == ord($subString) && $numberSeatConvert == $numberSeat - 1) {
+                        $publish[] = $arraySeats[$i];
+                        $arrayResult[] = $publish;
+                    } else {
+                        $arrayResult[] = $publish;
+                        $publish = array($arraySeats[$i]);
+                        $arrayResult[] = $publish;
+                    }
+                } else {
+                    if (empty($publish)) {
+                        $publish = array($arraySeats[$i]);
+                    } else {
                         $handingString = substr($arraySeats[$i], 0, 1);
                         $numberSeat = (int) substr($arraySeats[$i], 1);
                         $subString = substr($arraySeats[$i - 1], 0, 1);
                         $numberSeatConvert = (int) substr($arraySeats[$i - 1], 1);
                         if (ord($handingString) == ord($subString) && $numberSeatConvert == $numberSeat - 1) {
                             $publish[] = $arraySeats[$i];
-                            $arrayResult[] = $publish;
                         } else {
                             $arrayResult[] = $publish;
                             $publish = array($arraySeats[$i]);
-                            $arrayResult[] = $publish;
-                        }
-                    } else {
-                        if (empty($publish)) {
-                            $publish = array($arraySeats[$i]);
-                        } else {
-                            $handingString = substr($arraySeats[$i], 0, 1);
-                            $numberSeat = (int) substr($arraySeats[$i], 1);
-                            $subString = substr($arraySeats[$i - 1], 0, 1);
-                            $numberSeatConvert = (int) substr($arraySeats[$i - 1], 1);
-                            if (ord($handingString) == ord($subString) && $numberSeatConvert == $numberSeat - 1) {
-                                $publish[] = $arraySeats[$i];
-                            } else {
-                                $arrayResult[] = $publish;
-                                $publish = array($arraySeats[$i]);
-                            }
                         }
                     }
                 }
-                $seats = $arrayResult;
-                $result = $this->shuffleSeats($seats, $viewers, $vote->id);
-
-                return $result;
             }
+            $seats = $arrayResult;
+            $result = $this->shuffleSeats($seats, $viewers, $vote->id);
+
+            return $result;
         }
     }
 
     /**
      * Delete all chair user choosed by vote
-     * @param  int $vote_id
-     * @return \Illuminate\Http\Response
+     * @param  int $voteId
+     * @return object
      */
     public function delAll($voteId)
     {

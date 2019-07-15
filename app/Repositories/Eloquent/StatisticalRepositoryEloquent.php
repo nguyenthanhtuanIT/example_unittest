@@ -49,13 +49,10 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
         if (!empty($attributes['movie_selected'])) {
             $statistical = Statistical::find($id);
             $voteId = $statistical->vote_id;
-            $check = Statistical::where(['vote_id' => $voteId, 'movie_selected' => Films::SELECTED])->get();
-            if ($check->count() == 1) {
-                foreach ($check as $value) {
-                    $value->update(['movie_selected' => Films::NOTSELECT]);
-                }
+            $check = Statistical::where(['vote_id' => $voteId, 'movie_selected' => Films::SELECTED])->first();
+            if ($check) {
+                $check->update(['movie_selected' => Films::NOTSELECT]);
             }
-
         }
 
         return parent::update($attributes, $id);
@@ -142,7 +139,7 @@ class StatisticalRepositoryEloquent extends BaseRepository implements Statistica
             $films = Films::all();
             foreach ($statisticals as $statistical) {
                 foreach ($films as $value) {
-
+                  
                     if ($statistical->films_id != null && $statistical->films_id == $value->id) {
                         $info[] = array($value->name_film, $statistical->amount_votes);
                     } else {

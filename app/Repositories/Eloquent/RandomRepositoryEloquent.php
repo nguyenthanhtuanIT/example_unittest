@@ -82,7 +82,7 @@ class RandomRepositoryEloquent extends BaseRepository implements RandomRepositor
     /**
      * Get chair by vote
      * @param  int $voteId
-     * @return \Illuminate\Http\Response
+     * @return object
      */
     public function chairsByVote($voteId)
     {
@@ -92,7 +92,8 @@ class RandomRepositoryEloquent extends BaseRepository implements RandomRepositor
     /**
      * Delete all chair by vote
      * @param  int $voteId
-     * @return \Illuminate\Http\Response
+     * @return object
+
      */
     public function delAll($voteId)
     {

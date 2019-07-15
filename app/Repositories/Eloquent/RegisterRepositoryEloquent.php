@@ -181,6 +181,7 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
         $check = false;
         $guest = false;
         $agree = false;
+        $data = ['check' => $check, 'guest' => $guest];
         $userRegister = $this->getUserRegister($attributes['user_id'], $attributes['vote_id'])->first();
         $register = Register::where('vote_id', $attributes['vote_id'])->where('ticket_number', '>', 1)->get();
 
@@ -226,7 +227,7 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
             }
         }
 
-        return $data = ['check' => $check, 'guest' => $guest];
+        return $data;
     }
 
     /**
