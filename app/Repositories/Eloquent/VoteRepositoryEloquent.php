@@ -177,10 +177,8 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
 
             if (!empty($vote->infor_time)) {
                 $times = new Carbon($vote->infor_time);
-                $date = $times->toDateString();
-                $time = $times->toTimeString();
-                $result['date'] = $date;
-                $result['time'] = $time;
+                $result['date'] = $times->toDateString();
+                $result['time'] = $times->toTimeString();
             } else {
                 $result['time'] = $vote->infor_time;
             }
