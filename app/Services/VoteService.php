@@ -34,6 +34,7 @@ class VoteService
     public static function updateTicket($voteId, $numberOld, $numberNew)
     {
         $vote = Vote::find($voteId);
+      
         if ($vote) {
             $vote->total_ticket -= $numberOld;
             $vote->total_ticket += $numberNew;
@@ -53,6 +54,7 @@ class VoteService
     public static function deleteTicket($voteId, $number)
     {
         $vote = Vote::find($voteId);
+
         if ($vote) {
             $vote->total_ticket -= $number;
             $vote->save();

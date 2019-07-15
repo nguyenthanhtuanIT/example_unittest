@@ -46,8 +46,8 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
     }
 
     /**
-     * @param  int $vote_id
-     * @return \Illuminate\Http\Response
+     * @param  int $voteId
+     * @return object
      */
     public function chairByVote($voteId)
     {
@@ -57,7 +57,7 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
     /**
      * custom create
      * @param  array  $attributes
-     * @return \Illuminate\Http\Response
+     * @return object
      */
     public function create(array $attributes)
     {
@@ -79,8 +79,8 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
 
     /**
      * Get diagram chair by vote
-     * @param  int $vote_id
-     * @return  \Illuminate\Http\Response
+     * @param  int $voteId
+     * @return  object
      */
     public function diagramChairByVote($voteId)
     {

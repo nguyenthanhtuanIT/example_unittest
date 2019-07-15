@@ -89,6 +89,5 @@ class StatisticalService
         }
 
         return false;
-
     }
 }

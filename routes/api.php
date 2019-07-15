@@ -12,7 +12,6 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('amount_vote_films/{voteId}', 'StatisticalController@getAmountVote');
     Route::post('search_blog', 'BlogController@searchBlogByTitle');
     Route::post('update_status_chair', 'ChairController@updateStatusChair');
-
     Route::group(['middleware' => ['auth:api']], function () {
         //user information
         Route::get('me', 'UserController@me');

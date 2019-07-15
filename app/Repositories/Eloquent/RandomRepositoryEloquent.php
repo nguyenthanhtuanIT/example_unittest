@@ -93,6 +93,7 @@ class RandomRepositoryEloquent extends BaseRepository implements RandomRepositor
      * Delete all chair by vote
      * @param  int $voteId
      * @return object
+
      */
     public function delAll($voteId)
     {
