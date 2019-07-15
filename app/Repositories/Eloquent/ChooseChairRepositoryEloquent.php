@@ -148,9 +148,8 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     {
         $find = $this->getOfUserByVote($attributes['user_id'], $attributes['vote_id'])->first();
         $this->model()::find($find->id)->delete();
-        $result = parent::create($attributes);
 
-        return $result;
+        return parent::create($attributes);
     }
 
     /**

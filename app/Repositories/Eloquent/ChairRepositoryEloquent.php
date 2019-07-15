@@ -84,8 +84,7 @@ class ChairRepositoryEloquent extends BaseRepository implements ChairRepository
      */
     public function diagramChairByVote($voteId)
     {
-        $diagrams = $this->chairByVote($voteId)->get();
-        return $diagrams;
+        return $this->chairByVote($voteId)->get();
     }
 
     /**

@@ -58,9 +58,8 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
         $name = $attributes['img']->store('photos');
         $link = Storage::url($name);
         $attributes['img'] = $link;
-        $film = parent::create($attributes);
 
-        return $film;
+        return parent::create($attributes);
     }
 
     /**
@@ -84,9 +83,8 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
                 Storage::delete('/photos/' . $nameImg[5]);
             }
         }
-        $film = parent::update($attributes, $id);
 
-        return $film;
+        return parent::update($attributes, $id);
     }
 
     /**
@@ -107,7 +105,7 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
                 }
             }
         }
-      
+
         return parent::delete($id);
     }
     /**

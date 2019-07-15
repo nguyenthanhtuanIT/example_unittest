@@ -55,9 +55,9 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
         $name = $attributes['img']->store('photos');
         $link = Storage::url($name);
         $attributes['img'] = $link;
-        $blog = parent::create($attributes);
 
-        return $blog;
+        return parent::create($attributes);
+
     }
 
     /**
@@ -81,9 +81,8 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
                 Storage::delete('/photos/' . $nameImg[5]);
             }
         }
-        $blog = parent::update($attributes, $id);
 
-        return $blog;
+        return parent::update($attributes, $id);
     }
 
     /**
@@ -93,9 +92,8 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
      */
     public function searchBlog($key)
     {
-        $blogs = Blog::where('name_blog', 'LIKE', "%{$key}%")
+        return Blog::where('name_blog', 'LIKE', "%{$key}%")
             ->orderBy('id', 'DESC')->paginate(8);
-        return $blogs;
     }
 
     /**
@@ -104,7 +102,6 @@ class BlogRepositoryEloquent extends BaseRepository implements BlogRepository
      */
     public function getAll()
     {
-        $blogs = Blog::orderBy('id', 'DESC')->paginate(8);
-        return $blogs;
+        return Blog::orderBy('id', 'DESC')->paginate(8);
     }
 }
