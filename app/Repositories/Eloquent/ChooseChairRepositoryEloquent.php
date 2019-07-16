@@ -52,7 +52,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
      * Get chair choosed of user by vote
      * @param  int $userId
      * @param  int $voteId
-     * @return \Illuminate\Http\Response
+     * @return object
      */
     public function getOfUserByVote($userId, $voteId)
     {
@@ -64,7 +64,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     /**
      * custom create
      * @param  array  $attributes
-     * @return \Illuminate\Http\Response
+     * @return object
      */
     public function create(array $attributes)
     {
@@ -74,9 +74,8 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         if (!empty($count)) {
             $chairs = $this->model()::whereNotIn('id', [$count->id])->where('vote_id', $attributes['vote_id'])->get();
             $this->model()::find($count->id)->delete();
-        } else {
-            $chairs = $this->model()::where('vote_id', $attributes['vote_id'])->get();
         }
+        $chairs = $this->model()::where('vote_id', $attributes['vote_id'])->get();
         foreach ($chairs as $val) {
             $chair = explode(',', $val->seats);
             for ($i = 0; $i < count($chair); $i++) {
@@ -94,7 +93,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     /**
      * Get total ticket of user
      * @param  array  $attributes
-     * @return \Illuminate\Http\Response
+     * @return array
      */
     public function ticketUser(array $attributes)
     {
@@ -107,7 +106,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     /**
      * Check status choose chair of user
      * @param  array  $attributes
-     * @return \Illuminate\Http\Response
+     * @return array
      */
     public function checkChoosed(array $attributes)
     {
@@ -138,7 +137,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     /**
      * User rechoose chairs
      * @param  array  $attributes
-     * @return \Illuminate\Http\Response
+     * @return object
      */
     public function reChoose(array $attributes)
     {
@@ -151,7 +150,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     /**
      * handling data
      * @param  array  $attributes
-     * @return \Illuminate\Http\Response
+     * @return array
      */
     public function randChair(array $attributes)
     {
@@ -162,7 +161,7 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         if ($vote->status_vote != Vote::BOOKING || !$chairs) {
             return false;
         }
-        $publish = $seats = $viewers = $array = $temp = $arrayName = $array_result = [];
+        $publish = $seats = $viewers = $array = $temp = $arrayName = $arrayResult = [];
         foreach ($register as $value) {
             $findUser = User::find($value->user_id);
             if ($value->ticket_number == 1) {
