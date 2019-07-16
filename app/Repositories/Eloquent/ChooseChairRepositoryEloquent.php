@@ -111,9 +111,8 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
      */
     public function checkChoosed(array $attributes)
     {
-        $check = false;
-        $result = ['check' => $check];
-        $user = '';
+        $result = ['check' => false];
+        $user = null;
         $register = Register::where('vote_id', $attributes['vote_id'])->where('ticket_number', '>', 1)->get();
         foreach ($register as $value) {
             $arrayFriend = explode(',', $value->best_friend);
@@ -125,14 +124,13 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
             }
         }
 
-        if ($user == '') {
+        if (is_null($user)) {
             $choosed = $this->getOfUserByVote($attributes['user_id'], $attributes['vote_id'])->first();
         }
         $choosed = $this->getOfUserByVote($user, $attributes['vote_id'])->first();
 
         if ($choosed) {
-            $check = true;
-            $result = ['check' => $check, 'seats' => $choosed->seats];
+            $result = ['check' => true, 'seats' => $choosed->seats];
         }
 
         return $result;
@@ -159,11 +157,10 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
     {
         $vote = Vote::find($attributes['vote_id']);
         $register = Register::where('vote_id', $vote->id)->get();
-        $chairs = Chair::where('vote_id', $vote->id)->get();
-        $result = false;
+        $chairs = Chair::where('vote_id', $vote->id)->first();
 
-        if ($vote->status_vote != Vote::BOOKING || count($chairs) == 0) {
-            return $result;
+        if ($vote->status_vote != Vote::BOOKING || !$chairs) {
+            return false;
         }
         $publish = $seats = $viewers = $array = $temp = $arrayName = $array_result = [];
         foreach ($register as $value) {
@@ -186,49 +183,46 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         }
         $viewers = array_merge($arrayName, $temp);
         //seats
-        foreach ($chairs as $value) {
-            $arrayChairs = $value->chairs;
-            $arraySeats = [];
-            for ($i = 0; $i < count($arrayChairs); $i++) {
-                $arraySeats[] = $arrayChairs[$i];
-            }
-            sort($arraySeats, SORT_STRING);
-            for ($i = 0; $i < count($arraySeats); $i++) {
-                if ($i == (count($arraySeats) - 1)) {
+        $arrayChairs = $chairs->chairs;
+        $arraySeats = [];
+        for ($i = 0; $i < count($arrayChairs); $i++) {
+            $arraySeats[] = $arrayChairs[$i];
+        }
+        sort($arraySeats, SORT_STRING);
+        for ($i = 0; $i < count($arraySeats); $i++) {
+            if ($i == (count($arraySeats) - 1)) {
+                $handingString = substr($arraySeats[$i], 0, 1);
+                $numberSeat = (int) substr($arraySeats[$i], 1);
+                $subString = substr($arraySeats[$i - 1], 0, 1);
+                $numberSeatConvert = (int) substr($arraySeats[$i - 1], 1);
+                if (ord($handingString) == ord($subString) && $numberSeatConvert == $numberSeat - 1) {
+                    $publish[] = $arraySeats[$i];
+                    $arrayResult[] = $publish;
+                } else {
+                    $arrayResult[] = $publish;
+                    $publish = array($arraySeats[$i]);
+                    $arrayResult[] = $publish;
+                }
+            } else {
+                if (empty($publish)) {
+                    $publish = array($arraySeats[$i]);
+                } else {
                     $handingString = substr($arraySeats[$i], 0, 1);
                     $numberSeat = (int) substr($arraySeats[$i], 1);
                     $subString = substr($arraySeats[$i - 1], 0, 1);
                     $numberSeatConvert = (int) substr($arraySeats[$i - 1], 1);
                     if (ord($handingString) == ord($subString) && $numberSeatConvert == $numberSeat - 1) {
                         $publish[] = $arraySeats[$i];
-                        $arrayResult[] = $publish;
                     } else {
                         $arrayResult[] = $publish;
                         $publish = array($arraySeats[$i]);
-                        $arrayResult[] = $publish;
-                    }
-                } else {
-                    if (empty($publish)) {
-                        $publish = array($arraySeats[$i]);
-                    } else {
-                        $handingString = substr($arraySeats[$i], 0, 1);
-                        $numberSeat = (int) substr($arraySeats[$i], 1);
-                        $subString = substr($arraySeats[$i - 1], 0, 1);
-                        $numberSeatConvert = (int) substr($arraySeats[$i - 1], 1);
-                        if (ord($handingString) == ord($subString) && $numberSeatConvert == $numberSeat - 1) {
-                            $publish[] = $arraySeats[$i];
-                        } else {
-                            $arrayResult[] = $publish;
-                            $publish = array($arraySeats[$i]);
-                        }
                     }
                 }
             }
-            $seats = $arrayResult;
-            $result = $this->shuffleSeats($seats, $viewers, $vote->id);
-
-            return $result;
         }
+        $seats = $arrayResult;
+
+        return $this->shuffleSeats($seats, $viewers, $vote->id);
     }
 
     /**
