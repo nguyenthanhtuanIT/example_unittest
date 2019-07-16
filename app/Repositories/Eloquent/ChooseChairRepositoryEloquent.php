@@ -189,9 +189,10 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
         }
         sort($arraySeats, SORT_STRING);
         for ($i = 0; $i < count($arraySeats); $i++) {
+            $handingString = substr($arraySeats[$i], 0, 1);
+            $numberSeat = (int) substr($arraySeats[$i], 1);
+
             if ($i == (count($arraySeats) - 1)) {
-                $handingString = substr($arraySeats[$i], 0, 1);
-                $numberSeat = (int) substr($arraySeats[$i], 1);
                 $subString = substr($arraySeats[$i - 1], 0, 1);
                 $numberSeatConvert = (int) substr($arraySeats[$i - 1], 1);
                 if (ord($handingString) == ord($subString) && $numberSeatConvert == $numberSeat - 1) {
@@ -202,20 +203,18 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                     $publish = array($arraySeats[$i]);
                     $arrayResult[] = $publish;
                 }
+            }
+
+            if (empty($publish)) {
+                $publish = array($arraySeats[$i]);
             } else {
-                if (empty($publish)) {
-                    $publish = array($arraySeats[$i]);
+                $subString = substr($arraySeats[$i - 1], 0, 1);
+                $numberSeatConvert = (int) substr($arraySeats[$i - 1], 1);
+                if (ord($handingString) == ord($subString) && $numberSeatConvert == $numberSeat - 1) {
+                    $publish[] = $arraySeats[$i];
                 } else {
-                    $handingString = substr($arraySeats[$i], 0, 1);
-                    $numberSeat = (int) substr($arraySeats[$i], 1);
-                    $subString = substr($arraySeats[$i - 1], 0, 1);
-                    $numberSeatConvert = (int) substr($arraySeats[$i - 1], 1);
-                    if (ord($handingString) == ord($subString) && $numberSeatConvert == $numberSeat - 1) {
-                        $publish[] = $arraySeats[$i];
-                    } else {
-                        $arrayResult[] = $publish;
-                        $publish = array($arraySeats[$i]);
-                    }
+                    $arrayResult[] = $publish;
+                    $publish = array($arraySeats[$i]);
                 }
             }
         }

@@ -154,11 +154,10 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
             $statistical = $this->getVoteMax($voteId, $max)->get();
 
             if (count($statistical) == 1) {
-                foreach ($statistical as $value) {
-                    $film = Films::find($value->films_id);
-                    $this->getVoteMax($voteId, $max)->update(['movie_selected' => Films::SELECTED]);
-                    return $film;
-                }
+                $data = $statistical->toArray();
+                $film = Films::find($data[0]['films_id']);
+                $statistical->update(['movie_selected' => Films::SELECTED]);
+                return $film;
             } else {
                 $random = $this->getVoteMax($voteId, $max)->get()->random();
                 $films = Films::find($random->films_id);

@@ -68,54 +68,52 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
 
         if ($count) {
             return $register;
-        } else {
-
-            if (!empty($attributes['best_friend'])) {
-                $friends = explode(',', $attributes['best_friend']);
-                if ($ticketNumber > count($friends)) {
-                    $ticketOutsite = $ticketNumber - 1 - count($friends);
-                }
-                for ($i = 1; $i <= $ticketOutsite; $i++) {
-                    $friends[] = "$user->full_name $i";
-                }
-                for ($i = 0; $i < count($friends); $i++) {
-                    if (empty($friends[$i])) {
-                        unset($friends[$i]);
-                    }
-                }
-                for ($i = 0; $i < count($friends); $i++) {
-
-                    if (is_numeric($friends[$i])) {
-                        $user = User::find($friends[$i]);
-                        Mail::to($user->email)->queue(new MailInvite($user));
-                    }
-                }
-                $attributes['best_friend'] = implode(',', $friends);
-            } else {
-                $listFriend = explode(',', $attributes['best_friend']);
-                $ticketOutsite = $ticketNumber - 1;
-                for ($i = 1; $i <= $ticketOutsite; $i++) {
-                    $a[] = "$user->full_name $i";
-                }
-                for ($i = 0; $i < count($listFriend); $i++) {
-                    if (empty($listFriend[$i])) {
-                        unset($listFriend[$i]);
-                    }
-                }
-                $attributes['best_friend'] = implode(',', $listFriend);
-            }
-            $attributes['ticket_outsite'] = $ticketOutsite;
-            $register = parent::create($attributes);
-            $addRegister = StatisticalService::addRegister($register['data']['attributes']['film_id'], $register['data']['attributes']['vote_id']);
-            $addTicket = VoteService::addTicket($register['data']['attributes']['vote_id'], $register['data']['attributes']['ticket_number']);
-
-            if (!$addRegister || !$addTicket) {
-                return false;
-            }
-
-            return $register;
         }
 
+        if (!empty($attributes['best_friend'])) {
+            $friends = explode(',', $attributes['best_friend']);
+            if ($ticketNumber > count($friends)) {
+                $ticketOutsite = $ticketNumber - 1 - count($friends);
+            }
+            for ($i = 1; $i <= $ticketOutsite; $i++) {
+                $friends[] = "$user->full_name $i";
+            }
+            for ($i = 0; $i < count($friends); $i++) {
+                if (empty($friends[$i])) {
+                    unset($friends[$i]);
+                }
+            }
+            for ($i = 0; $i < count($friends); $i++) {
+
+                if (is_numeric($friends[$i])) {
+                    $user = User::find($friends[$i]);
+                    Mail::to($user->email)->queue(new MailInvite($user));
+                }
+            }
+            $attributes['best_friend'] = implode(',', $friends);
+        } else {
+            $listFriend = explode(',', $attributes['best_friend']);
+            $ticketOutsite = $ticketNumber - 1;
+            for ($i = 1; $i <= $ticketOutsite; $i++) {
+                $a[] = "$user->full_name $i";
+            }
+            for ($i = 0; $i < count($listFriend); $i++) {
+                if (empty($listFriend[$i])) {
+                    unset($listFriend[$i]);
+                }
+            }
+            $attributes['best_friend'] = implode(',', $listFriend);
+        }
+        $attributes['ticket_outsite'] = $ticketOutsite;
+        $register = parent::create($attributes);
+        $addRegister = StatisticalService::addRegister($register['data']['attributes']['film_id'], $register['data']['attributes']['vote_id']);
+        $addTicket = VoteService::addTicket($register['data']['attributes']['vote_id'], $register['data']['attributes']['ticket_number']);
+
+        if (!$addRegister || !$addTicket) {
+            return false;
+        }
+
+        return $register;
     }
 
     /**
@@ -178,18 +176,15 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
      */
     public function checkRegister(array $attributes)
     {
-        $check = false;
-        $guest = false;
         $agree = false;
-        $data = ['check' => $check, 'guest' => $guest];
+        $data = ['check' => false, 'guest' => false];
         $userRegister = $this->getUserRegister($attributes['user_id'], $attributes['vote_id'])->first();
         $register = Register::where('vote_id', $attributes['vote_id'])->where('ticket_number', '>', 1)->get();
 
         if ($userRegister) {
-            $check = true;
             $data = [
-                'check' => $check,
-                'guest' => $guest,
+                'check' => true,
+                'guest' => false,
                 'user_id' => $userRegister->user_id,
                 'ticket_number' => $userRegister->ticket_number,
             ];
@@ -199,13 +194,11 @@ class RegisterRepositoryEloquent extends BaseRepository implements RegisterRepos
                 $people = explode(',', $value->best_friend);
                 for ($i = 0; $i < count($people); $i++) {
                     if ($people[$i] == $attributes['user_id']) {
-                        $check = true;
-                        $guest = true;
                         $id = $value->user_id;
                         $user = User::find($id);
                         $data = [
-                            'check' => $check,
-                            'guest' => $guest,
+                            'check' => true,
+                            'guest' => true,
                             'fullname' => $user->full_name,
                             'avatar' => $user->avatar,
                             'user_id' => $id,
