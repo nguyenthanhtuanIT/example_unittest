@@ -109,9 +109,8 @@ class VoteRepositoryEloquent extends BaseRepository implements VoteRepository
                 Storage::delete('/photos/' . $nameImg[4]);
             }
         }
-        $vote = parent::update($attributes, $id);
 
-        return $vote;
+        return parent::update($attributes, $id);
     }
 
     /**

@@ -51,7 +51,6 @@ class RandomRepositoryEloquent extends BaseRepository implements RandomRepositor
     public function create(array $attributes)
     {
         $voteId = 0;
-        $result = null;
         $array = explode(';', $attributes['rand']);
         for ($i = 0; $i < count($array); $i++) {
             $convert = explode(',', $array[$i]);
@@ -62,21 +61,20 @@ class RandomRepositoryEloquent extends BaseRepository implements RandomRepositor
         $check = Random::where('vote_id', $voteId)->count();
 
         if ($check != 0) {
-            return $result;
+            return null;
         }
         $array = explode(';', $attributes['rand']);
         for ($i = 0; $i < count($array); $i++) {
             $arrayChill = explode(',', $array[$i]);
             $voteId = $arrayChill[0];
             $random = new Random;
-            $random->vote_id = $arrayChill[0];
+            $random->vote_id = $voteId;
             $random->seats = $arrayChill[1];
             $random->viewers = $arrayChill[2];
             $random->save();
         }
-        $result = Random::where('vote_id', $voteId)->get();
 
-        return $result;
+        return Random::where('vote_id', $voteId)->get();
     }
 
     /**

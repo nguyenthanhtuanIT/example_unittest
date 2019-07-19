@@ -68,9 +68,8 @@ class DiagramRepositoryEloquent extends BaseRepository implements DiagramReposit
         if ($diagram) {
             return null;
         }
-        $diagrams = parent::create($attributes);
 
-        return $diagrams;
+        return parent::create($attributes);
     }
 
 /**
