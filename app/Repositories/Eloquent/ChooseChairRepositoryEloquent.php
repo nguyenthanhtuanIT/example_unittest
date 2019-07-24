@@ -122,11 +122,11 @@ class ChooseChairRepositoryEloquent extends BaseRepository implements ChooseChai
                 }
             }
         }
+        $choosed = $this->getOfUserByVote($attributes['user_id'], $attributes['vote_id'])->first();
 
-        if (is_null($user)) {
-            $choosed = $this->getOfUserByVote($attributes['user_id'], $attributes['vote_id'])->first();
+        if (!is_null($user)) {
+            $choosed = $this->getOfUserByVote($user, $attributes['vote_id'])->first();
         }
-        $choosed = $this->getOfUserByVote($user, $attributes['vote_id'])->first();
 
         if ($choosed) {
             $result = ['check' => true, 'seats' => $choosed->seats];

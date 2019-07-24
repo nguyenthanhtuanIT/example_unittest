@@ -116,7 +116,7 @@ class ChairController extends Controller
     public function getDiagramChairByVote($voteId)
     {
         $diagram = $this->repository->diagramChairByVote($voteId);
-        return $this->success($diagram, trans('messages.chairs.success'));
+        return $this->success($diagram, trans('messages.chairs.success'), ['isContainByDataString' => true]);
     }
 
     /**
