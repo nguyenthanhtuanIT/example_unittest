@@ -21,6 +21,8 @@ services:
       MYSQL_PASSWORD: user123
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
+    volumes:
+      - ./config.user.inc.php:/etc/phpmyadmin/config.inc.php
     ports:
       - 9029:80
     depends_on:

@@ -134,7 +134,7 @@ class FilmsRepositoryEloquent extends BaseRepository implements FilmsRepository
                 $film = Films::find($lists[$i]);
                 $arrayFilms[] = $film;
             }
-            return $arrayFilms;
+            return $this->parserResult($arrayFilms);
         }
 
         return null;

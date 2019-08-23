@@ -21,7 +21,7 @@ class CinemaTransformer extends BaseTransformer
      *
      * @var array
      */
-    protected $availableIncludes = [];
+    protected $availableIncludes = ['room'];
 
     /**
      * List of resources possible to include
@@ -40,5 +40,19 @@ class CinemaTransformer extends BaseTransformer
         return [
 
         ];
+    }
+
+    // public function transform($model)
+    // {
+    //     return [
+    //         'id' => $model->id,
+    //         'name' => $model->name_cinema,
+    //     ];
+    // }
+
+    public function includeRoom(Cinema $cinema)
+    {
+        $room = $cinema->room;
+        return $this->collection($room, new RoomTransformer(), 'room');
     }
 }

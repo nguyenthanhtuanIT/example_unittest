@@ -16,4 +16,9 @@ class Cinema extends BaseModel
      */
     protected $fillable = ['name_cinema', 'address', 'amount_rooms'];
 
+    public function room()
+    {
+        return $this->hasMany(\App\Models\Room::class);
+    }
+
 }

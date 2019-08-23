@@ -27,4 +27,9 @@ class Room extends BaseModel
         $name = Cinema::find($this->cinema_id);
         return $name->name_cinema;
     }
+
+    public function cinema()
+    {
+        return $this->belongsTo(\App\Models\Cinema::class);
+    }
 }

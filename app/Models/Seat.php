@@ -15,7 +15,8 @@ class Seat extends BaseModel
      * @return: array with status and data
      * @author: AuTN
      */
-    public function shuffle_seats($seats = [], $viewers = []) {
+    public function shuffle_seats($seats = [], $viewers = [])
+    {
         $seats = array_values($seats);
         $viewers = array_values($viewers);
         // seats or viewers list is empty
@@ -62,8 +63,8 @@ class Seat extends BaseModel
         // prepare data: sort viewers and shuffle seats...
         shuffle($viewers);
         usort($viewers, function ($a, $b) {
-            if (count($a) < count($b)) { return 1; }
-            if (count($a) > count($b)) { return -1; }
+            if (count($a) < count($b)) {return 1;}
+            if (count($a) > count($b)) {return -1;}
             return 0;
         });
         shuffle($seats);
@@ -104,14 +105,15 @@ class Seat extends BaseModel
      * @return: list with format 'key' (from $array2) => 'value' (from $array1)
      * @author: AuTN
      */
-    private function array_2_slots($array1 = [], &$slots = [], &$positions = []) {
+    private function array_2_slots($array1 = [], &$slots = [], &$positions = [])
+    {
         foreach ($array1 as $array1_group_key => $array1_group) {
             $i = 0;
             $max_available_slots_of_array2 = [0];
             foreach ($slots as $slots_group_key => $slots_group_value) {
                 if ($slots_group_value > array_values($max_available_slots_of_array2)[0]) {
                     $max_available_slots_of_array2 = [
-                        $slots_group_key => $slots_group_value
+                        $slots_group_key => $slots_group_value,
                     ];
                 }
                 if (count($array1_group) <= $slots_group_value) {

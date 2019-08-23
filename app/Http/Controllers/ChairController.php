@@ -127,7 +127,8 @@ class ChairController extends Controller
     public function updateStatusChair(Request $request)
     {
         $result = $this->repository->updateChairs($request->all());
-        return $this->success(['chairs' => $result], trans('messages.chairs.success'), ['isContainByDataString' => true]);
+        return $this->success(['chairs' => $result],
+            trans('messages.chairs.success'), ['isContainByDataString' => true]);
     }
 
     /**

@@ -21,7 +21,7 @@ class RoomTransformer extends \App\Transformers\BaseTransformer
      *
      * @var array
      */
-    protected $availableIncludes = [];
+    protected $availableIncludes = ['cinema'];
 
     /**
      * List of resources possible to include
@@ -41,5 +41,11 @@ class RoomTransformer extends \App\Transformers\BaseTransformer
         return [
             'cinema' => $model->getCinema(),
         ];
+    }
+
+    public function includeCinema(Room $room)
+    {
+        $cinema = $room->cinema;
+        return $this->item($cinema, new CinemaTransformer(), 'Cinemas');
     }
 }

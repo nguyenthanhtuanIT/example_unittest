@@ -38,6 +38,11 @@ class FilmsTransformer extends BaseTransformer
 
     public function customAttributes($model): array
     {
-        return [];
+        return [
+            'attributes' => [
+                'id' => $model->id,
+                'mame_film' => $model->name_film,
+            ],
+        ];
     }
 }

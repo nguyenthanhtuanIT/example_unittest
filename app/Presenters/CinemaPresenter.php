@@ -23,4 +23,9 @@ class CinemaPresenter extends FractalPresenter
     {
         return new CinemaTransformer();
     }
+
+    public function setupSerializer()
+    {
+        $this->fractal->setSerializer(new \League\Fractal\Serializer\JsonApiSerializer('http://localhost:9000/api/v1'));
+    }
 }
